@@ -3,14 +3,14 @@ const AuthorizationError = require('../AuthorizationError');
 
 describe('AuthorizationError', () => {
   it('should create AuthorizationError correctly', () => {
-    const authenticationError = new AuthorizationError('authorization error!');
+    const authorizationError = new AuthorizationError('authorization error!');
 
-    expect(authenticationError).toBeInstanceOf(AuthorizationError);
-    expect(authenticationError).toBeInstanceOf(ClientError);
-    expect(authenticationError).toBeInstanceOf(Error);
+    expect(authorizationError).toBeInstanceOf(AuthorizationError);
+    expect(authorizationError).toBeInstanceOf(ClientError);
+    expect(authorizationError).toBeInstanceOf(Error);
 
-    expect(authenticationError.statusCode).toEqual(403);
-    expect(authenticationError.message).toEqual('authorization error!');
-    expect(authenticationError.name).toEqual('AuthorizationError');
+    expect(authorizationError.statusCode).toEqual(403);
+    expect(authorizationError.message).toEqual('authorization error!');
+    expect(authorizationError.name).toEqual('AuthorizationError');
   });
 });
