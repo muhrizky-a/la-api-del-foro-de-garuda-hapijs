@@ -17,7 +17,7 @@ const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 // use case
 const AddUserUseCase = require('../Applications/use_case/users/AddUserUseCase');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
-const JwtTokenManager = require('./security/JwtTokenManager');
+const HapiJwtTokenManager = require('./security/HapiJwtTokenManager');
 const LoginUserUseCase = require('../Applications/use_case/authentications/LoginUserUseCase');
 const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
@@ -67,11 +67,14 @@ container.register([
   },
   {
     key: AuthenticationTokenManager.name,
-    Class: JwtTokenManager,
+    Class: HapiJwtTokenManager,
     parameter: {
       dependencies: [
         {
           concrete: Jwt.token,
+        },
+        {
+          concrete: Jwt.plugin,
         },
       ],
     },

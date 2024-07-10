@@ -3,11 +3,41 @@ const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
+const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
 
 const createServer = async (container) => {
   const server = Hapi.server({
     host: process.env.HOST,
     port: process.env.PORT,
+  });
+  console.log("getting instance..");
+  const authenticationTokenManager = container.getInstance(AuthenticationTokenManager.name);
+  console.log("got instance!");
+  const jwtPlugin = await authenticationTokenManager.getPlugin();
+
+  // register external plugin
+  await server.register([
+    {
+      plugin: jwtPlugin,
+    },
+  ]);
+
+  // mendefinisikan strategy autentikasi jwt
+  server.auth.strategy('forumapi_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+        username: artifacts.decoded.payload.username,
+      },
+    }),
   });
 
   await server.register([
