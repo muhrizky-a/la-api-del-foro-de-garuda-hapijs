@@ -1,3 +1,4 @@
+const AuthenticationError = require('./AuthenticationError');
 const InvariantError = require('./InvariantError');
 
 const DomainErrorTranslator = {
@@ -15,6 +16,8 @@ DomainErrorTranslator._directories = {
   'USER_LOGIN.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('username dan password harus string'),
   'REFRESH_AUTHENTICATION_USE_CASE.NOT_CONTAIN_REFRESH_TOKEN': new InvariantError('harus mengirimkan token refresh'),
   'REFRESH_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('refresh token harus string'),
+  'AUTHENTICATE_USER_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN': new AuthenticationError('harus mengirimkan token access'),
+  'AUTHENTICATE_USER_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new AuthenticationError('access token harus string'),
   'DELETE_AUTHENTICATION_USE_CASE.NOT_CONTAIN_REFRESH_TOKEN': new InvariantError('harus mengirimkan token refresh'),
   'DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('refresh token harus string'),
 };

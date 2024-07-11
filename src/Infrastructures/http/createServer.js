@@ -3,43 +3,24 @@ const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
-const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
+const threads = require('../../Interfaces/http/api/threads');
+const authenticationsMiddleware = require('../../Interfaces/http/middleware/authentications');
 
 const createServer = async (container) => {
   const server = Hapi.server({
     host: process.env.HOST,
     port: process.env.PORT,
   });
-  console.log("getting instance..");
-  const authenticationTokenManager = container.getInstance(AuthenticationTokenManager.name);
-  console.log("got instance!");
-  const jwtPlugin = await authenticationTokenManager.getPlugin();
 
-  // register external plugin
+  // register middlewares
   await server.register([
     {
-      plugin: jwtPlugin,
+      plugin: authenticationsMiddleware,
+      options: { container },
     },
   ]);
 
-  // mendefinisikan strategy autentikasi jwt
-  server.auth.strategy('forumapi_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
-    verify: {
-      aud: false,
-      iss: false,
-      sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
-    },
-    validate: (artifacts) => ({
-      isValid: true,
-      credentials: {
-        id: artifacts.decoded.payload.id,
-        username: artifacts.decoded.payload.username,
-      },
-    }),
-  });
-
+  // register api routes and handlers
   await server.register([
     {
       plugin: users,
@@ -47,6 +28,10 @@ const createServer = async (container) => {
     },
     {
       plugin: authentications,
+      options: { container },
+    },
+    {
+      plugin: threads,
       options: { container },
     },
   ]);
@@ -68,7 +53,6 @@ const createServer = async (container) => {
         newResponse.code(translatedError.statusCode);
         return newResponse;
       }
-
       // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
       if (!translatedError.isServer) {
         return h.continue;

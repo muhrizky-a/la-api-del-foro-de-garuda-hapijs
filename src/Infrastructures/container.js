@@ -10,19 +10,23 @@ const pool = require('./database/postgres/pool');
 
 // service (repository, helper, manager, etc)
 const UserRepository = require('../Domains/users/UserRepository');
-const PasswordHash = require('../Applications/security/PasswordHash');
+const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
+const ThreadRepository = require('../Domains/threads/ThreadRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
+const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
+const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
+const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
+const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
+const JwtTokenManager = require('./security/JwtTokenManager');
 
 // use case
 const AddUserUseCase = require('../Applications/use_case/users/AddUserUseCase');
-const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
-const HapiJwtTokenManager = require('./security/HapiJwtTokenManager');
 const LoginUserUseCase = require('../Applications/use_case/authentications/LoginUserUseCase');
-const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
-const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
 const LogoutUserUseCase = require('../Applications/use_case/authentications/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/authentications/RefreshAuthenticationUseCase');
+const AuthenticateUserUseCase = require('../Applications/use_case/authentications/AuthenticateUserUseCase');
+const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
 
 // creating container
 const container = createContainer();
@@ -55,6 +59,20 @@ container.register([
     },
   },
   {
+    key: ThreadRepository.name,
+    Class: ThreadRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
     key: PasswordHash.name,
     Class: BcryptPasswordHash,
     parameter: {
@@ -67,14 +85,11 @@ container.register([
   },
   {
     key: AuthenticationTokenManager.name,
-    Class: HapiJwtTokenManager,
+    Class: JwtTokenManager,
     parameter: {
       dependencies: [
         {
           concrete: Jwt.token,
-        },
-        {
-          concrete: Jwt.plugin,
         },
       ],
     },
@@ -151,6 +166,32 @@ container.register([
         {
           name: 'authenticationTokenManager',
           internal: AuthenticationTokenManager.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AuthenticateUserUseCase.name,
+    Class: AuthenticateUserUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'authenticationTokenManager',
+          internal: AuthenticationTokenManager.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AddThreadUseCase.name,
+    Class: AddThreadUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
         },
       ],
     },
