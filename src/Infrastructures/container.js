@@ -11,10 +11,8 @@ const pool = require('./database/postgres/pool');
 // service (repository, helper, manager, etc)
 const UserRepository = require('../Domains/users/UserRepository');
 const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
-const ThreadRepository = require('../Domains/threads/ThreadRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
-const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -26,7 +24,6 @@ const LoginUserUseCase = require('../Applications/use_case/authentications/Login
 const LogoutUserUseCase = require('../Applications/use_case/authentications/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/authentications/RefreshAuthenticationUseCase');
 const AuthenticateUserUseCase = require('../Applications/use_case/authentications/AuthenticateUserUseCase');
-const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
 
 // creating container
 const container = createContainer();
@@ -54,20 +51,6 @@ container.register([
       dependencies: [
         {
           concrete: pool,
-        },
-      ],
-    },
-  },
-  {
-    key: ThreadRepository.name,
-    Class: ThreadRepositoryPostgres,
-    parameter: {
-      dependencies: [
-        {
-          concrete: pool,
-        },
-        {
-          concrete: nanoid,
         },
       ],
     },
@@ -179,19 +162,6 @@ container.register([
         {
           name: 'authenticationTokenManager',
           internal: AuthenticationTokenManager.name,
-        },
-      ],
-    },
-  },
-  {
-    key: AddThreadUseCase.name,
-    Class: AddThreadUseCase,
-    parameter: {
-      injectType: 'destructuring',
-      dependencies: [
-        {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
         },
       ],
     },
