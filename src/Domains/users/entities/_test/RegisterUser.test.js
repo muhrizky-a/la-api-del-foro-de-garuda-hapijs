@@ -1,6 +1,14 @@
 const RegisterUser = require('../RegisterUser');
 
 describe('a RegisterUser entities', () => {
+  it('should throw error when payload is empty', () => {
+    // Arrange
+    const payload = undefined;
+
+    // Action & Assert
+    expect(() => new RegisterUser(payload)).toThrowError('REGISTER_USER.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {

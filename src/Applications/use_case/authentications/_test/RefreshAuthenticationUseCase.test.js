@@ -3,6 +3,17 @@ const AuthenticationTokenManager = require('../../../security/AuthenticationToke
 const RefreshAuthenticationUseCase = require('../RefreshAuthenticationUseCase');
 
 describe('RefreshAuthenticationUseCase', () => {
+  it('should throw error when use case payload is empty', async () => {
+    // Arrange
+    const useCasePayload = undefined;
+    const refreshAuthenticationUseCase = new RefreshAuthenticationUseCase({});
+
+    // Action & Assert
+    await expect(refreshAuthenticationUseCase.execute(useCasePayload))
+      .rejects
+      .toThrowError('REFRESH_AUTHENTICATION_USE_CASE.NOT_CONTAIN_REFRESH_TOKEN');
+  });
+
   it('should throw error if use case payload not contain refresh token', async () => {
     // Arrange
     const useCasePayload = {};

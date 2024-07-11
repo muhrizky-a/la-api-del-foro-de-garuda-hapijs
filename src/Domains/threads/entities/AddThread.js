@@ -7,6 +7,10 @@ class AddThread {
   }
 
   _verifyPayload(payload) {
+    if (!payload) {
+      throw new Error('ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+    }
+
     const { title, body } = payload;
 
     if (!title || !body) {

@@ -1,6 +1,15 @@
 const UserLogin = require('../UserLogin');
 
 describe('UserLogin entities', () => {
+  it('should throw error when payload is empty', () => {
+    // Arrange
+    const payload = undefined;
+
+    // Action & Assert
+    expect(() => new UserLogin(payload)).toThrowError('USER_LOGIN.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+
   it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {

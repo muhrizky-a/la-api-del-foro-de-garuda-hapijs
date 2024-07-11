@@ -20,6 +20,10 @@ class RefreshAuthenticationUseCase {
   }
 
   _verifyPayload(payload) {
+    if (!payload) {
+      throw new Error('REFRESH_AUTHENTICATION_USE_CASE.NOT_CONTAIN_REFRESH_TOKEN');
+    }
+
     const { refreshToken } = payload;
 
     if (!refreshToken) {
