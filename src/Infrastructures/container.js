@@ -23,7 +23,7 @@ const JwtTokenManager = require('./security/JwtTokenManager');
 // use case
 const AddUserUseCase = require('../Applications/use_case/users/AddUserUseCase');
 const LoginUserUseCase = require('../Applications/use_case/authentications/LoginUserUseCase');
-const LogoutUserUseCase = require('../Applications/use_case/authentications/LogoutUserUseCase');
+const DeleteAuthenticationUseCase = require('../Applications/use_case/authentications/DeleteAuthenticationUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/authentications/RefreshAuthenticationUseCase');
 const AuthenticateUserUseCase = require('../Applications/use_case/authentications/AuthenticateUserUseCase');
 const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
@@ -141,8 +141,8 @@ container.register([
     },
   },
   {
-    key: LogoutUserUseCase.name,
-    Class: LogoutUserUseCase,
+    key: DeleteAuthenticationUseCase.name,
+    Class: DeleteAuthenticationUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
