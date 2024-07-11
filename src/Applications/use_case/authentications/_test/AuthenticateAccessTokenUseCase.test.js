@@ -1,27 +1,27 @@
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
-const AuthenticateUserUseCase = require('../AuthenticateUserUseCase');
+const AuthenticateAccessTokenUseCase = require('../AuthenticateAccessTokenUseCase');
 
-describe('AuthenticateUserUseCase', () => {
+describe('AuthenticateAccessTokenUseCase', () => {
   it('should throw error if use case payload is empty or not exist', async () => {
     // Arrange
     const useCasePayload = undefined;
-    const authenticateUserUseCase = new AuthenticateUserUseCase({});
+    const authenticateAccessTokenUseCase = new AuthenticateAccessTokenUseCase({});
 
     // Action & Assert
-    await expect(authenticateUserUseCase.execute(useCasePayload))
+    await expect(authenticateAccessTokenUseCase.execute(useCasePayload))
       .rejects
-      .toThrowError('AUTHENTICATE_USER_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN');
+      .toThrowError('AUTHENTICATE_ACCESS_TOKEN_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN');
   });
 
   it('should throw error if use case payload not string', async () => {
     // Arrange
     const useCasePayload = 123;
-    const authenticateUserUseCase = new AuthenticateUserUseCase({});
+    const authenticateAccessTokenUseCase = new AuthenticateAccessTokenUseCase({});
 
     // Action & Assert
-    await expect(authenticateUserUseCase.execute(useCasePayload))
+    await expect(authenticateAccessTokenUseCase.execute(useCasePayload))
       .rejects
-      .toThrowError('AUTHENTICATE_USER_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      .toThrowError('AUTHENTICATE_ACCESS_TOKEN_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should throw error if access token fails to verify', async () => {
@@ -35,12 +35,12 @@ describe('AuthenticateUserUseCase', () => {
       .mockImplementation(() => Promise.reject(new Error('access token tidak valid')));
 
     // create use case instance
-    const authenticateUserUseCase = new AuthenticateUserUseCase({
+    const authenticateAccessTokenUseCase = new AuthenticateAccessTokenUseCase({
       authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action & Assert
-    await expect(authenticateUserUseCase.execute(useCasePayload))
+    await expect(authenticateAccessTokenUseCase.execute(useCasePayload))
       .rejects
       .toThrowError('access token tidak valid');
   });
@@ -62,12 +62,12 @@ describe('AuthenticateUserUseCase', () => {
       .mockImplementation(() => Promise.resolve(mockedDecodedAccessToken));
 
     // create use case instance
-    const authenticateUserUseCase = new AuthenticateUserUseCase({
+    const authenticateAccessTokenUseCase = new AuthenticateAccessTokenUseCase({
       authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action
-    const credentials = await authenticateUserUseCase.execute(useCasePayload);
+    const credentials = await authenticateAccessTokenUseCase.execute(useCasePayload);
 
     // Assert
     expect(credentials).toStrictEqual(mockedDecodedAccessToken);

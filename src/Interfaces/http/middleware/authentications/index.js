@@ -7,7 +7,7 @@ module.exports = {
 
     const authenticationScheme = () => {
       return {
-        authenticate: authenticationsMiddleware.authenticateUserHandler
+        authenticate: authenticationsMiddleware.authenticateAccessTokenHandler
       };
     };
 

@@ -25,7 +25,7 @@ const AddUserUseCase = require('../Applications/use_case/users/AddUserUseCase');
 const LoginUserUseCase = require('../Applications/use_case/authentications/LoginUserUseCase');
 const DeleteAuthenticationUseCase = require('../Applications/use_case/authentications/DeleteAuthenticationUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/authentications/RefreshAuthenticationUseCase');
-const AuthenticateUserUseCase = require('../Applications/use_case/authentications/AuthenticateUserUseCase');
+const AuthenticateAccessTokenUseCase = require('../Applications/use_case/authentications/AuthenticateAccessTokenUseCase');
 const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
 
 // creating container
@@ -171,8 +171,8 @@ container.register([
     },
   },
   {
-    key: AuthenticateUserUseCase.name,
-    Class: AuthenticateUserUseCase,
+    key: AuthenticateAccessTokenUseCase.name,
+    Class: AuthenticateAccessTokenUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [

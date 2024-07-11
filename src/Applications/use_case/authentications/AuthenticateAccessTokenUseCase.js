@@ -1,4 +1,4 @@
-class AuthenticateUserUseCase {
+class AuthenticateAccessTokenUseCase {
   constructor({
     authenticationTokenManager,
   }) {
@@ -17,11 +17,11 @@ class AuthenticateUserUseCase {
 
   _verifyPayload(payload) {
     if (!payload) {
-      throw new Error('AUTHENTICATE_USER_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN');
+      throw new Error('AUTHENTICATE_ACCESS_TOKEN_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN');
     }
 
     if (typeof payload !== 'string') {
-      throw new Error('AUTHENTICATE_USER_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('AUTHENTICATE_ACCESS_TOKEN_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 
@@ -31,4 +31,4 @@ class AuthenticateUserUseCase {
   }
 }
 
-module.exports = AuthenticateUserUseCase;
+module.exports = AuthenticateAccessTokenUseCase;
