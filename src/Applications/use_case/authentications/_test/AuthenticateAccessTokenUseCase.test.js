@@ -27,7 +27,6 @@ describe('AuthenticateAccessTokenUseCase', () => {
   it('should throw error if access token fails to verify', async () => {
     // Arrange
     const useCasePayload = 'Bearer wrong_access_token';
-    const mockedAccessToken = 'access_token';
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     // Mocking 
