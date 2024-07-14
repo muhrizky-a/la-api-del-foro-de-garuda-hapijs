@@ -26,7 +26,7 @@ class AuthenticateAccessTokenUseCase {
   }
 
   async _splitAccessToken(payload) {
-    const accessToken = payload.split("Bearer ")[1];
+    const accessToken = payload.replace('Bearer ', '');
     return accessToken;
   }
 }
