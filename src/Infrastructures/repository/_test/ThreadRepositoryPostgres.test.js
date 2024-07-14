@@ -32,8 +32,8 @@ describe('ThreadRepositoryPostgres', () => {
       await threadRepositoryPostgres.addThread(fakeUserId, addThread);
 
       // Assert
-      const threads = await ThreadsTableTestHelper.findThreadsById('thread-123');
-      expect(threads).toHaveLength(1);
+      const thread = await ThreadsTableTestHelper.findThreadsById('thread-123');
+      expect(thread).toHaveLength(1);
     });
 
     it('should return recently added thread correctly', async () => {

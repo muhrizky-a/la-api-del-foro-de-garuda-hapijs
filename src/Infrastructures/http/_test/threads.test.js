@@ -2,6 +2,7 @@ const pool = require('../../database/postgres/pool');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const { _addUser, _login } = require('../../../../tests/functionalTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -16,26 +17,6 @@ describe('/threads endpoint', () => {
     await AuthenticationsTableTestHelper.cleanTable();
   });
 
-  const _addUser = async (server) => {
-    await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        username: 'dicoding',
-        password: 'secret',
-        fullname: 'Dicoding Indonesia',
-      },
-    });
-  };
-
-  const _login = async (server) => server.inject({
-    method: 'POST',
-    url: '/authentications',
-    payload: {
-      username: 'dicoding',
-      password: 'secret',
-    },
-  });
 
   const _addThread = async ({ server, requestPayload, accessToken }) => server.inject({
     method: 'POST',
@@ -57,9 +38,9 @@ describe('/threads endpoint', () => {
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       //// add user
-      await _addUser(server);
+      await _addUser({ server });
       //// login user
-      const loginResponse = await _login(server);
+      const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
       // Action
@@ -79,9 +60,9 @@ describe('/threads endpoint', () => {
       };
       const server = await createServer(container);
       //// add user
-      await _addUser(server);
+      await _addUser({ server });
       //// login user
-      const loginResponse = await _login(server);
+      const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
       // Action
@@ -102,9 +83,9 @@ describe('/threads endpoint', () => {
       };
       const server = await createServer(container);
       //// add user
-      await _addUser(server);
+      await _addUser({ server });
       //// login user
-      const loginResponse = await _login(server);
+      const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
       // Action
