@@ -1,10 +1,11 @@
+const ThreadComment = require('../../Domains/thread_comments/entities/ThreadComment');
 const NewThreadComment = require('../../Domains/thread_comments/entities/NewThreadComment');
 const ThreadCommentRepository = require('../../Domains/thread_comments/ThreadCommentRepository');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 
 
-class ThreadRepositoryPostgres extends ThreadCommentRepository {
+class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
   constructor(pool, idGenerator) {
     super();
     this._pool = pool;
@@ -23,6 +24,29 @@ class ThreadRepositoryPostgres extends ThreadCommentRepository {
     const result = await this._pool.query(query);
 
     return new NewThreadComment({ ...result.rows[0] });
+  }
+
+  async getCommentsByThreadId(threadId) {
+    const query = {
+      text: `SELECT thread_comments.id,
+      thread_comments.id,
+      thread_comments.content,
+      thread_comments.date,
+      thread_comments.is_delete,
+      users.username
+      FROM thread_comments
+      INNER JOIN users
+      ON thread_comments.owner = users.id
+      WHERE thread_comments.thread_id = $1
+      ORDER BY thread_comments.date ASC`,
+      values: [threadId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError('comment tidak ditemukan');
+    }
+    return result.rows.map(comment => new ThreadComment({ ...comment }));
   }
 
   async verifyCommentOwner(id, owner) {
@@ -57,4 +81,4 @@ class ThreadRepositoryPostgres extends ThreadCommentRepository {
   }
 }
 
-module.exports = ThreadRepositoryPostgres;
+module.exports = ThreadCommentRepositoryPostgres;

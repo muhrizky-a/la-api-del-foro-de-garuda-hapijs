@@ -20,8 +20,6 @@ describe('/threads/:id/comments endpoint', () => {
         await AuthenticationsTableTestHelper.cleanTable();
     });
 
-
-
     const _addThread = async ({
         server,
         accessToken
@@ -283,9 +281,9 @@ describe('/threads/:id/comments endpoint', () => {
                 content: 'Un Comentario',
             };
             const server = await createServer(container);
-            //// add default user (username: dicoding)
+            //// add user dicoding
             await _addUser({ server });
-            //// add john user
+            //// add user john
             await _addUser({
                 server,
                 username: 'john',

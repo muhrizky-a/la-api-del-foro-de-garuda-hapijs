@@ -26,7 +26,6 @@ class JwtTokenManager extends AuthenticationTokenManager {
           maxAgeSec: process.env.ACCESS_TOKEN_AGE,
         },
       );
-
     } catch (error) {
       throw new AuthenticationError('access token tidak valid');
     }

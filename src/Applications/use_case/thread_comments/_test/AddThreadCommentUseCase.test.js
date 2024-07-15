@@ -10,9 +10,6 @@ describe('AddThreadCommentUseCase', () => {
    */
   it('should throw error if thread not exist', async () => {
     // Arrange
-    const useCasePayload = {
-      content: 'Un Comentario',
-    };
     const nonexistentThreadId = "xxxxx"
 
     // create dependency of use case
@@ -29,7 +26,7 @@ describe('AddThreadCommentUseCase', () => {
     });
 
     // Action & Assert
-    await expect(addThreadCommentUseCase.execute(null, nonexistentThreadId, useCasePayload))
+    await expect(addThreadCommentUseCase.execute(null, nonexistentThreadId, {}))
       .rejects
       .toThrowError('thread tidak ditemukan');
   });

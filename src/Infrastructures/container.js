@@ -29,6 +29,7 @@ const DeleteAuthenticationUseCase = require('../Applications/use_case/authentica
 const RefreshAuthenticationUseCase = require('../Applications/use_case/authentications/RefreshAuthenticationUseCase');
 const AuthenticateAccessTokenUseCase = require('../Applications/use_case/authentications/AuthenticateAccessTokenUseCase');
 const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
+const GetThreadByIdUseCase = require('../Applications/use_case/threads/GetThreadByIdUseCase');
 const AddThreadCommentUseCase = require('../Applications/use_case/thread_comments/AddThreadCommentUseCase');
 const DeleteThreadCommentUseCase = require('../Applications/use_case/thread_comments/DeleteThreadCommentUseCase');
 
@@ -210,6 +211,23 @@ container.register([
         {
           name: 'threadRepository',
           internal: ThreadRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: GetThreadByIdUseCase.name,
+    Class: GetThreadByIdUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
+        },
+        {
+          name: 'threadCommentRepository',
+          internal: ThreadCommentRepository.name,
         },
       ],
     },

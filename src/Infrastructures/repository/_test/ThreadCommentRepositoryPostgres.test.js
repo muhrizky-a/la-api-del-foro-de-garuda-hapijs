@@ -4,6 +4,7 @@ const ThreadCommentsTableTestHelper = require('../../../../tests/ThreadCommentsT
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddThreadComment = require('../../../Domains/thread_comments/entities/AddThreadComment');
 const NewThreadComment = require('../../../Domains/thread_comments/entities/NewThreadComment');
+const ThreadComment = require('../../../Domains/thread_comments/entities/ThreadComment');
 const pool = require('../../database/postgres/pool');
 const ThreadCommentRepositoryPostgres = require('../ThreadCommentRepositoryPostgres');
 
@@ -52,7 +53,8 @@ describe('ThreadCommentRepositoryPostgres', () => {
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
       // Action
-      const newComment = await threadCommentRepositoryPostgres.addComment(fakeThreadOwnerId, 'thread-123', addThreadComment);
+      const newComment = await threadCommentRepositoryPostgres
+        .addComment(fakeThreadOwnerId, 'thread-123', addThreadComment);
 
       // Assert
       expect(newComment).toStrictEqual(new NewThreadComment({
@@ -60,6 +62,81 @@ describe('ThreadCommentRepositoryPostgres', () => {
         content: 'Un Comentario',
         owner: 'user-123',
       }));
+    });
+  });
+
+  describe('getCommentsByThreadId function', () => {
+    it('should throw NotFoundError when comment not found', async () => {
+      // Arrange
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
+      await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
+      await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
+
+      // Action & Assert
+      expect(1).toStrictEqual(1);
+      await expect(threadCommentRepositoryPostgres
+        .getCommentsByThreadId('comment-xxxxx'))
+        .rejects
+        .toThrowError(NotFoundError);
+    });
+
+    it('should return comment correctly', async () => {
+      // Arrange
+      const fakeThreadId = 'thread-123'; // stub thread id
+      const fakeIdGenerator = () => '123'; // stub!
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, fakeIdGenerator);
+      await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
+      await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
+      await ThreadCommentsTableTestHelper.addComment({});
+      await ThreadCommentsTableTestHelper.addComment({
+        id: 'comment-234',
+        content: 'Un Comentario Eliminado',
+      });
+      await ThreadCommentsTableTestHelper.deleteComment('comment-234');
+
+
+      // Action
+      const comments = await threadCommentRepositoryPostgres.getCommentsByThreadId(fakeThreadId);
+      const [firstComment, deletedComment] = comments;
+
+      // // Assert
+      expect(comments).toContainEqual(
+        new ThreadComment({
+          id: 'comment-123',
+          username: 'dicoding',
+          date: firstComment.date,
+          content: 'Un Comentario',
+          is_delete: false,
+        })
+      );
+      expect(firstComment).toStrictEqual(
+        new ThreadComment({
+          id: 'comment-123',
+          username: 'dicoding',
+          date: firstComment.date,
+          content: 'Un Comentario',
+          is_delete: false,
+        })
+      );
+
+      expect(comments).toContainEqual(
+        new ThreadComment({
+          id: 'comment-234',
+          username: 'dicoding',
+          date: deletedComment.date,
+          content: '**komentar telah dihapus**',
+          is_delete: true,
+        })
+      );
+      expect(deletedComment).toStrictEqual(
+        new ThreadComment({
+          id: 'comment-234',
+          username: 'dicoding',
+          date: deletedComment.date,
+          content: '**komentar telah dihapus**',
+          is_delete: true,
+        })
+      );
     });
   });
 
