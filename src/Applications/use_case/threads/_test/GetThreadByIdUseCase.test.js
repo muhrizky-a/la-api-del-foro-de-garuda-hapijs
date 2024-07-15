@@ -10,7 +10,7 @@ describe('GetThreadByIdUseCase', () => {
    */
   it('should throw error if thread not exist', async () => {
     // Arrange
-    const nonexistentThreadId = "xxxxx"
+    const nonexistentThreadId = 'xxxxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -36,10 +36,10 @@ describe('GetThreadByIdUseCase', () => {
     const threadId = 'thread-123';
     const mockThread = new Thread({
       id: threadId,
-      title: "Un Hilo",
-      body: "Un Contenido",
+      title: 'Un Hilo',
+      body: 'Un Contenido',
       date: new Date('2021-08-08T07:26:21.338Z'),
-      username: "dicoding",
+      username: 'dicoding',
     });
     const mockThreadComment1 = new ThreadComment({
       id: 'comment-123',
@@ -67,8 +67,8 @@ describe('GetThreadByIdUseCase', () => {
       .mockImplementation(() => Promise.resolve(
         [
           mockThreadComment1,
-          mockThreadComment2
-        ]
+          mockThreadComment2,
+        ],
       ));
 
     // create use case instance
@@ -79,17 +79,17 @@ describe('GetThreadByIdUseCase', () => {
 
     // Action
     const { thread, comments } = await getThreadByIdUseCase.execute(threadId);
-    const [firstComment, deletedComment] = comments
+    const [firstComment, deletedComment] = comments;
 
     // Assert
     expect(thread).toStrictEqual(
       new Thread({
         id: 'thread-123',
-        title: "Un Hilo",
-        body: "Un Contenido",
+        title: 'Un Hilo',
+        body: 'Un Contenido',
         date: new Date('2021-08-08T07:26:21.338Z'),
-        username: "dicoding",
-      })
+        username: 'dicoding',
+      }),
     );
 
     expect(comments).toContainEqual(
@@ -99,7 +99,7 @@ describe('GetThreadByIdUseCase', () => {
         date: new Date('2021-08-08T07:26:21.338Z'),
         content: 'Un Comentario',
         is_delete: false,
-      })
+      }),
     );
     expect(firstComment).toStrictEqual(
       new ThreadComment({
@@ -108,7 +108,7 @@ describe('GetThreadByIdUseCase', () => {
         date: new Date('2021-08-08T07:26:21.338Z'),
         content: 'Un Comentario',
         is_delete: false,
-      })
+      }),
     );
     expect(comments).toContainEqual(
       new ThreadComment({
@@ -117,7 +117,7 @@ describe('GetThreadByIdUseCase', () => {
         date: new Date('2021-08-08T07:26:21.338Z'),
         content: 'Un Comentario Eliminado',
         is_delete: true,
-      })
+      }),
     );
     expect(deletedComment).toStrictEqual(
       new ThreadComment({
@@ -126,7 +126,7 @@ describe('GetThreadByIdUseCase', () => {
         date: new Date('2021-08-08T07:26:21.338Z'),
         content: 'Un Comentario Eliminado',
         is_delete: true,
-      })
+      }),
     );
     expect(mockThreadRepository.getThreadById).toBeCalledWith('thread-123');
     expect(mockThreadRepository.getThreadById).toBeCalledTimes(1);

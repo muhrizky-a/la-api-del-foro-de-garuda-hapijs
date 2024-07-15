@@ -4,7 +4,6 @@ const ThreadCommentRepository = require('../../Domains/thread_comments/ThreadCom
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 
-
 class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
   constructor(pool, idGenerator) {
     super();
@@ -46,7 +45,7 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     if (!result.rowCount) {
       throw new NotFoundError('comment tidak ditemukan');
     }
-    return result.rows.map(comment => new ThreadComment({ ...comment }));
+    return result.rows.map((comment) => new ThreadComment({ ...comment }));
   }
 
   async verifyCommentOwner(id, owner) {

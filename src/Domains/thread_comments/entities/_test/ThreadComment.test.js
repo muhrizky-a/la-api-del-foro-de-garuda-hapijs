@@ -25,7 +25,6 @@ describe('ThreadComment entities', () => {
     expect(() => new ThreadComment(payload)).toThrowError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-
   it('should create ThreadComment entities correctly', () => {
     // Arrange
     const payload = {

@@ -8,7 +8,7 @@ describe('DeleteThreadCommentUseCase', () => {
    */
   it('should throw error if thread not exist', async () => {
     // Arrange
-    const nonexistentThreadId = "xxxxx"
+    const nonexistentThreadId = 'xxxxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -30,9 +30,9 @@ describe('DeleteThreadCommentUseCase', () => {
 
   it('should throw error if comment not exist', async () => {
     // Arrange
-    const threadId = "thread-123"
-    const nonexistentCommentId = "xxxxx"
-    const userId = "user-123"
+    const threadId = 'thread-123';
+    const nonexistentCommentId = 'xxxxx';
+    const userId = 'user-123';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -43,7 +43,6 @@ describe('DeleteThreadCommentUseCase', () => {
       .mockImplementation(() => Promise.resolve());
     mockThreadCommentRepository.verifyCommentOwner = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('comment tidak ditemukan')));
-
 
     // create use case instance
     const deleteThreadCommentUseCase = new DeleteThreadCommentUseCase({
@@ -59,9 +58,9 @@ describe('DeleteThreadCommentUseCase', () => {
 
   it('should throw error if user not owns the comment', async () => {
     // Arrange
-    const threadId = "thread-123"
-    const commentId = "comment-123"
-    const unauthorizeUserId = "user-xxxxx"
+    const threadId = 'thread-123';
+    const commentId = 'comment-123';
+    const unauthorizeUserId = 'user-xxxxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -72,7 +71,6 @@ describe('DeleteThreadCommentUseCase', () => {
       .mockImplementation(() => Promise.resolve());
     mockThreadCommentRepository.verifyCommentOwner = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('anda tidak berhak mengakses comment ini')));
-
 
     // create use case instance
     const deleteThreadCommentUseCase = new DeleteThreadCommentUseCase({
@@ -88,9 +86,9 @@ describe('DeleteThreadCommentUseCase', () => {
 
   it('should orchestrating the delete comment action correctly', async () => {
     // Arrange
-    const threadId = "thread-123"
-    const commentId = "comment-123"
-    const ownerId = "user-123"
+    const threadId = 'thread-123';
+    const commentId = 'comment-123';
+    const ownerId = 'user-123';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();

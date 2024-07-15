@@ -36,7 +36,7 @@ class ThreadsHandler {
       data: {
         thread: {
           ...thread,
-          comments
+          comments,
         },
       },
     });

@@ -39,7 +39,8 @@ class AuthenticationsHandler {
   }
 
   async deleteAuthenticationHandler(request) {
-    const deleteAuthenticationUseCase = this._container.getInstance(DeleteAuthenticationUseCase.name);
+    const deleteAuthenticationUseCase = this._container
+      .getInstance(DeleteAuthenticationUseCase.name);
     await deleteAuthenticationUseCase.execute(request.payload);
     return {
       status: 'success',

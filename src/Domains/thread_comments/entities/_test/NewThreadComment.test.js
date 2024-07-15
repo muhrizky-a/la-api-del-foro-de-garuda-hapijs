@@ -23,7 +23,6 @@ describe('NewThreadComment entities', () => {
     expect(() => new NewThreadComment(payload)).toThrowError('NEW_THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-
   it('should create NewThreadComment entities correctly', () => {
     // Arrange
     const payload = {

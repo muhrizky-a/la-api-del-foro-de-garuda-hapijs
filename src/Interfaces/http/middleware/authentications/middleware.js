@@ -8,14 +8,14 @@ class AuthenticationsMiddleware {
   }
 
   async authenticateAccessTokenHandler(request, h) {
-    const authenticateAccessTokenUseCase = this._container.getInstance(AuthenticateAccessTokenUseCase.name);
+    const authenticateAccessTokenUseCase = this._container
+      .getInstance(AuthenticateAccessTokenUseCase.name);
     const credentials = await authenticateAccessTokenUseCase.execute(request.headers.authorization);
     return h.authenticated({ credentials });
   }
 
   // async authorizeUserAccessHandler(request, h) {
   // }
-
 }
 
 module.exports = AuthenticationsMiddleware;

@@ -28,7 +28,9 @@ describe('ThreadCommentRepositoryPostgres', () => {
       const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
 
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, fakeIdGenerator);
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+        pool, fakeIdGenerator,
+      );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
@@ -48,7 +50,9 @@ describe('ThreadCommentRepositoryPostgres', () => {
       const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
 
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, fakeIdGenerator);
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+        pool, fakeIdGenerator,
+      );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
@@ -84,7 +88,9 @@ describe('ThreadCommentRepositoryPostgres', () => {
       // Arrange
       const fakeThreadId = 'thread-123'; // stub thread id
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, fakeIdGenerator);
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+        pool, fakeIdGenerator,
+      );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
       await ThreadCommentsTableTestHelper.addComment({});
@@ -93,7 +99,6 @@ describe('ThreadCommentRepositoryPostgres', () => {
         content: 'Un Comentario Eliminado',
       });
       await ThreadCommentsTableTestHelper.deleteComment('comment-234');
-
 
       // Action
       const comments = await threadCommentRepositoryPostgres.getCommentsByThreadId(fakeThreadId);
@@ -107,7 +112,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
           date: firstComment.date,
           content: 'Un Comentario',
           is_delete: false,
-        })
+        }),
       );
       expect(firstComment).toStrictEqual(
         new ThreadComment({
@@ -116,7 +121,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
           date: firstComment.date,
           content: 'Un Comentario',
           is_delete: false,
-        })
+        }),
       );
 
       expect(comments).toContainEqual(
@@ -126,7 +131,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
           date: deletedComment.date,
           content: '**komentar telah dihapus**',
           is_delete: true,
-        })
+        }),
       );
       expect(deletedComment).toStrictEqual(
         new ThreadComment({
@@ -135,7 +140,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
           date: deletedComment.date,
           content: '**komentar telah dihapus**',
           is_delete: true,
-        })
+        }),
       );
     });
   });
@@ -143,7 +148,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
   describe('deleteComment function', () => {
     it('should throw NotFoundError when comment not available', async () => {
       // Arrange
-      const nonexistentCommentId = "xxxxx"
+      const nonexistentCommentId = 'xxxxx';
       const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
 
       // Action & Assert
@@ -156,9 +161,12 @@ describe('ThreadCommentRepositoryPostgres', () => {
       const fakeCommentId = 'comment-123'; // stub comment id
 
       const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
-      await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
-      await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
-      await ThreadCommentsTableTestHelper.addComment({}); // memasukan comment baru dengan data default
+      /// memasukan user baru dengan data default
+      await UsersTableTestHelper.addUser({});
+      /// memasukan thread baru dengan data default
+      await ThreadsTableTestHelper.addThread({});
+      /// memasukan comment baru dengan data default
+      await ThreadCommentsTableTestHelper.addComment({});
 
       // Action
       await threadCommentRepositoryPostgres.deleteComment(fakeCommentId);

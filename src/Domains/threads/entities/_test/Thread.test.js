@@ -25,7 +25,6 @@ describe('Thread entities', () => {
     expect(() => new Thread(payload)).toThrowError('THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-
   it('should create Thread entities correctly', () => {
     // Arrange
     const payload = {

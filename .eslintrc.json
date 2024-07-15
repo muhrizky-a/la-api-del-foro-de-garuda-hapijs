@@ -1,0 +1,56 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "plugins": [
+        "jest"
+    ],
+    "extends": [
+        "airbnb-base",
+        "plugin:jest/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "no-underscore-dangle": "off",
+        "no-console": "off",
+        "camelcase": "off"
+    },
+    "overrides": [
+        // {
+        //     "files": [
+        //         "**/*.test.js"
+        //     ],
+        //     "env": {
+        //         "jest/globals": true
+        //     },
+        //     "plugins": [
+        //         "jest"
+        //     ],
+        //     "extends": [
+        //         "plugin:jest/recommended"
+        //     ]
+        // },
+        {
+            "files": [
+                "./src/Applications/security/*.js",
+                "./src/Domains/**/*.js"
+            ],
+            "rules": {
+                "class-methods-use-this": "off",
+                "no-unused-vars": "off"
+            }
+        },
+        {
+            "files": [
+                "./src/Applications/use_case/**/*.js"
+            ],
+            "rules": {
+                "class-methods-use-this": "off"
+            }
+        }
+    ]
+}

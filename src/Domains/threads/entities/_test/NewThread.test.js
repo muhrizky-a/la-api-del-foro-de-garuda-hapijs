@@ -23,7 +23,6 @@ describe('NewThread entities', () => {
     expect(() => new NewThread(payload)).toThrowError('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-
   it('should create NewThread entities correctly', () => {
     // Arrange
     const payload = {

@@ -29,7 +29,7 @@ describe('AuthenticateAccessTokenUseCase', () => {
     const useCasePayload = 'Bearer wrong_access_token';
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
-    // Mocking 
+    // Mocking
     mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('access token tidak valid')));
 

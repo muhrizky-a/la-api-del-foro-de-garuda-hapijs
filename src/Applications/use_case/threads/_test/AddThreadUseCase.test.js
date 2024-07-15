@@ -47,8 +47,8 @@ describe('AddThreadUseCase', () => {
       owner: 'user-123',
     }));
 
-    expect(mockThreadRepository.addThread).
-      toBeCalledWith(
+    expect(mockThreadRepository.addThread)
+      .toBeCalledWith(
         mockCredentials.id,
         new AddThread({
           title: 'Un Hilo',

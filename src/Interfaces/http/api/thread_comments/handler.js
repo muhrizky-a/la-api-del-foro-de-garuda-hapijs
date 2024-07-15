@@ -33,9 +33,10 @@ class ThreadCommentsHandler {
     const deleteThreadCommentUseCase = this._container.getInstance(DeleteThreadCommentUseCase.name);
     await deleteThreadCommentUseCase.execute(ownerId, threadId, commentId);
 
-    return {
+    const response = h.response({
       status: 'success',
-    };
+    });
+    return response;
   }
 }
 

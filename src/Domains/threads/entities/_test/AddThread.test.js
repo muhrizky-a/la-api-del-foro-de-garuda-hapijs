@@ -12,7 +12,7 @@ describe('AddThread entities', () => {
   it('should throw error when payload not contain needed property', () => {
     // Arrange
     const payload = {
-      title: 'A Thread'
+      title: 'A Thread',
     };
 
     // Action & Assert

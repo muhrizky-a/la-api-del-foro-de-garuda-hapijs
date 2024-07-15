@@ -10,7 +10,7 @@ describe('AddThreadCommentUseCase', () => {
    */
   it('should throw error if thread not exist', async () => {
     // Arrange
-    const nonexistentThreadId = "xxxxx"
+    const nonexistentThreadId = 'xxxxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -68,7 +68,7 @@ describe('AddThreadCommentUseCase', () => {
       .execute(
         mockCredentials.id,
         'thread-123',
-        useCasePayload
+        useCasePayload,
       );
 
     // Assert
@@ -78,8 +78,8 @@ describe('AddThreadCommentUseCase', () => {
       owner: 'user-123',
     }));
 
-    expect(mockThreadCommentRepository.addComment).
-      toBeCalledWith(
+    expect(mockThreadCommentRepository.addComment)
+      .toBeCalledWith(
         mockCredentials.id,
         'thread-123',
         new AddThreadComment({

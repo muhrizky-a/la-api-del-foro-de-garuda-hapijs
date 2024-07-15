@@ -15,9 +15,8 @@ class Thread {
       title,
       body,
       date,
-      username
+      username,
     } = payload;
-
 
     if (
       !id

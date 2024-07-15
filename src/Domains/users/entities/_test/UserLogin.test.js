@@ -9,7 +9,6 @@ describe('UserLogin entities', () => {
     expect(() => new UserLogin(payload)).toThrowError('USER_LOGIN.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
-
   it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {

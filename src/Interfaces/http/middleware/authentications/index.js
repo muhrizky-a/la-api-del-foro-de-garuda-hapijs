@@ -5,14 +5,11 @@ module.exports = {
   register: async (server, { container }) => {
     const authenticationsMiddleware = new AuthenticationsMiddleware(container);
 
-    const authenticationScheme = () => {
-      return {
-        authenticate: authenticationsMiddleware.authenticateAccessTokenHandler
-      };
-    };
+    const authenticationScheme = () => ({
+      authenticate: authenticationsMiddleware.authenticateAccessTokenHandler,
+    });
 
     server.auth.scheme('forumapi_custom', authenticationScheme);
     server.auth.strategy('forumapi_custom_jwt', 'forumapi_custom');
   },
 };
-

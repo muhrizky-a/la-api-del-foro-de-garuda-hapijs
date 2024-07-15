@@ -17,20 +17,19 @@ describe('/threads endpoint', () => {
     await AuthenticationsTableTestHelper.cleanTable();
   });
 
-
   const _addThread = async ({ server, requestPayload, accessToken }) => server.inject({
     method: 'POST',
     url: '/threads',
     payload: requestPayload,
     headers: {
-      authorization: `Bearer ${accessToken}`
-    }
+      authorization: `Bearer ${accessToken}`,
+    },
   });
 
   const _addComment = async ({
     server,
     threadId,
-    accessToken
+    accessToken,
   }) => server.inject({
     method: 'POST',
     url: `/threads/${threadId}/comments`,
@@ -38,8 +37,8 @@ describe('/threads endpoint', () => {
       content: 'Un Comentario',
     },
     headers: {
-      authorization: `Bearer ${accessToken}`
-    }
+      authorization: `Bearer ${accessToken}`,
+    },
   });
 
   describe('when POST /threads', () => {
@@ -51,9 +50,9 @@ describe('/threads endpoint', () => {
       };
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
-      //// add user
+      /// add user
       await _addUser({ server });
-      //// login user
+      /// login user
       const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
@@ -73,9 +72,9 @@ describe('/threads endpoint', () => {
         title: 'Un Hilo',
       };
       const server = await createServer(container);
-      //// add user
+      /// add user
       await _addUser({ server });
-      //// login user
+      /// login user
       const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
@@ -96,9 +95,9 @@ describe('/threads endpoint', () => {
         body: 123,
       };
       const server = await createServer(container);
-      //// add user
+      /// add user
       await _addUser({ server });
-      //// login user
+      /// login user
       const loginResponse = await _login({ server });
       const { data: { accessToken } } = JSON.parse(loginResponse.payload);
 
@@ -121,44 +120,46 @@ describe('/threads endpoint', () => {
         body: 'Un Contenido',
       };
       const server = await createServer(container);
-      //// add user dicoding
+      /// add user dicoding
       await _addUser({ server });
-      //// add user john
+      /// add user john
       await _addUser({
         server,
         username: 'john',
-        fullname: 'John Rambo'
+        fullname: 'John Rambo',
       });
-      //// login user dicoding
+      /// login user dicoding
       const loginResponseDicoding = await _login({ server });
-      const { data: { accessToken: accessTokenDicoding } } = JSON.parse(loginResponseDicoding.payload);
-      //// login user john
+      const {
+        data: { accessToken: accessTokenDicoding },
+      } = JSON.parse(loginResponseDicoding.payload);
+      /// login user john
       const loginResponseJohn = await _login({
         server,
-        username: 'john'
+        username: 'john',
       });
       const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
-      //// add new thread (dicoding)
+      /// add new thread (dicoding)
       const addThreadResponse = await _addThread({
         server,
         requestPayload: addThreadRequestPayload,
-        accessToken: accessTokenDicoding
+        accessToken: accessTokenDicoding,
       });
       const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
 
-      //// add new (two) comments
+      /// add new (two) comments
       await _addComment({
         server,
         threadId,
-        accessToken: accessTokenDicoding
+        accessToken: accessTokenDicoding,
       });
       await _addComment({
         server,
         threadId,
-        accessToken: accessTokenJohn
+        accessToken: accessTokenJohn,
       });
 
-      //Action
+      // Action
       const response = await server.inject({
         method: 'GET',
         url: `/threads/${threadId}`,
@@ -181,53 +182,55 @@ describe('/threads endpoint', () => {
         body: 'Un Contenido',
       };
       const server = await createServer(container);
-      //// add user dicoding
+      /// add user dicoding
       await _addUser({ server });
-      //// add user john
+      /// add user john
       await _addUser({
         server,
         username: 'john',
-        fullname: 'John Rambo'
+        fullname: 'John Rambo',
       });
-      //// login user dicoding
+      /// login user dicoding
       const loginResponseDicoding = await _login({ server });
-      const { data: { accessToken: accessTokenDicoding } } = JSON.parse(loginResponseDicoding.payload);
-      //// login user john
+      const {
+        data: { accessToken: accessTokenDicoding },
+      } = JSON.parse(loginResponseDicoding.payload);
+      /// login user john
       const loginResponseJohn = await _login({
         server,
-        username: 'john'
+        username: 'john',
       });
       const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
-      //// add new thread (dicoding)
+      /// add new thread (dicoding)
       const addThreadResponse = await _addThread({
         server,
         requestPayload: addThreadRequestPayload,
-        accessToken: accessTokenDicoding
+        accessToken: accessTokenDicoding,
       });
       const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
 
-      //// add new (two) comments
+      /// add new (two) comments
       await _addComment({
         server,
         threadId,
-        accessToken: accessTokenDicoding
+        accessToken: accessTokenDicoding,
       });
       const addSecondCommentResponse = await _addComment({
         server,
         threadId,
-        accessToken: accessTokenJohn
+        accessToken: accessTokenJohn,
       });
       const secondCommentId = JSON.parse(addSecondCommentResponse.payload).data.addedComment.id;
-      //// delete john comment (john)
+      /// delete john comment (john)
       await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/${secondCommentId}`,
         headers: {
-          authorization: `Bearer ${accessTokenJohn}`
-        }
+          authorization: `Bearer ${accessTokenJohn}`,
+        },
       });
 
-      //Action
+      // Action
       const response = await server.inject({
         method: 'GET',
         url: `/threads/${threadId}`,
@@ -235,14 +238,14 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      const deletedComment = [...responseJson.data.thread.comments].pop()
+      const deletedComment = [...responseJson.data.thread.comments].pop();
 
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.thread).toBeDefined();
       expect(responseJson.data.thread.comments).toBeDefined();
       expect(responseJson.data.thread.comments).toHaveLength(2);
-      //// check the deleted comment
+      /// check the deleted comment
       expect(deletedComment).toStrictEqual({
         id: secondCommentId,
         username: 'john',
