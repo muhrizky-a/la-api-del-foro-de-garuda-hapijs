@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 exports.up = (pgm) => {
-  pgm.createTable('thread_comments', {
+  pgm.createTable('comments', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
@@ -30,5 +30,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('thread_comments');
+  pgm.dropTable('comments');
 };
