@@ -2,7 +2,7 @@ const pool = require('../../database/postgres/pool');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
-const ThreadCommentsTableTestHelper = require('../../../../tests/ThreadCommentsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const { _addUser, _login } = require('../../../../tests/functionalTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -13,7 +13,7 @@ describe('/threads/:id/comments endpoint', () => {
   });
 
   afterEach(async () => {
-    await ThreadCommentsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();

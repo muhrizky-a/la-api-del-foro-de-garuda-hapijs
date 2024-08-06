@@ -8,9 +8,8 @@ class AuthenticateAccessTokenUseCase {
   async execute(useCasePayload) {
     this._verifyPayload(useCasePayload);
 
-    const accessToken = await this._splitAccessToken(useCasePayload);
-    await this._authenticationTokenManager.verifyAccessToken(accessToken);
-    const { username, id } = await this._authenticationTokenManager.decodePayload(accessToken);
+    await this._authenticationTokenManager.verifyAccessToken(useCasePayload);
+    const { username, id } = await this._authenticationTokenManager.decodePayload(useCasePayload);
 
     return { username, id };
   }
@@ -23,11 +22,6 @@ class AuthenticateAccessTokenUseCase {
     if (typeof payload !== 'string') {
       throw new Error('AUTHENTICATE_ACCESS_TOKEN_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
-  }
-
-  async _splitAccessToken(payload) {
-    const accessToken = payload.replace('Bearer ', '');
-    return accessToken;
   }
 }
 

@@ -10,12 +10,11 @@ class AuthenticationsMiddleware {
   async authenticateAccessTokenHandler(request, h) {
     const authenticateAccessTokenUseCase = this._container
       .getInstance(AuthenticateAccessTokenUseCase.name);
-    const credentials = await authenticateAccessTokenUseCase.execute(request.headers.authorization);
+
+    const accessToken = request.headers.authorization.replace('Bearer ', '');
+    const credentials = await authenticateAccessTokenUseCase.execute(accessToken);
     return h.authenticated({ credentials });
   }
-
-  // async authorizeUserAccessHandler(request, h) {
-  // }
 }
 
 module.exports = AuthenticationsMiddleware;

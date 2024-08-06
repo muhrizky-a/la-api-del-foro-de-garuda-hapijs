@@ -1,7 +1,7 @@
 const Thread = require('../../../../Domains/threads/entities/Thread');
-const ThreadComment = require('../../../../Domains/thread_comments/entities/ThreadComment');
+const Comment = require('../../../../Domains/comments/entities/Comment');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
-const ThreadCommentRepository = require('../../../../Domains/thread_comments/ThreadCommentRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
 const GetThreadByIdUseCase = require('../GetThreadByIdUseCase');
 
 describe('GetThreadByIdUseCase', () => {
@@ -22,7 +22,7 @@ describe('GetThreadByIdUseCase', () => {
     // create use case instance
     const getThreadByIdUseCase = new GetThreadByIdUseCase({
       threadRepository: mockThreadRepository,
-      threadCommentRepository: {},
+      commentRepository: {},
     });
 
     // Action & Assert
@@ -41,14 +41,14 @@ describe('GetThreadByIdUseCase', () => {
       date: new Date('2021-08-08T07:26:21.338Z'),
       username: 'dicoding',
     });
-    const mockThreadComment1 = new ThreadComment({
+    const mockComment1 = new Comment({
       id: 'comment-123',
       username: 'dicoding',
       date: new Date('2021-08-08T07:26:21.338Z'),
       content: 'Un Comentario',
       is_delete: false,
     });
-    const mockThreadComment2 = new ThreadComment({
+    const mockComment2 = new Comment({
       id: 'comment-234',
       username: 'john',
       date: new Date('2021-08-08T07:26:21.338Z'),
@@ -58,79 +58,72 @@ describe('GetThreadByIdUseCase', () => {
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
-    const mockThreadCommentRepository = new ThreadCommentRepository();
+    const mockCommentRepository = new CommentRepository();
 
     // Mocking
     mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockThread));
-    mockThreadCommentRepository.getCommentsByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve(
+        new Thread({
+          id: threadId,
+          title: 'Un Hilo',
+          body: 'Un Contenido',
+          date: new Date('2021-08-08T07:26:21.338Z'),
+          username: 'dicoding',
+        }),
+      ));
+    mockCommentRepository.getCommentsByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve(
         [
-          mockThreadComment1,
-          mockThreadComment2,
+          new Comment({
+            id: 'comment-123',
+            username: 'dicoding',
+            date: new Date('2021-08-08T07:26:21.338Z'),
+            content: 'Un Comentario',
+            is_delete: false,
+          }),
+          new Comment({
+            id: 'comment-234',
+            username: 'john',
+            date: new Date('2021-08-08T07:26:21.338Z'),
+            content: 'Un Comentario Eliminado',
+            is_delete: true,
+          }),
         ],
       ));
 
     // create use case instance
     const getThreadByIdUseCase = new GetThreadByIdUseCase({
       threadRepository: mockThreadRepository,
-      threadCommentRepository: mockThreadCommentRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
-    const { thread, comments } = await getThreadByIdUseCase.execute(threadId);
+    const thread = await getThreadByIdUseCase.execute(threadId);
+    const { comments } = thread;
     const [firstComment, deletedComment] = comments;
 
     // Assert
-    expect(thread).toStrictEqual(
-      new Thread({
-        id: 'thread-123',
-        title: 'Un Hilo',
-        body: 'Un Contenido',
-        date: new Date('2021-08-08T07:26:21.338Z'),
-        username: 'dicoding',
-      }),
-    );
+    expect(thread.id).toStrictEqual(mockThread.id);
+    expect(thread.title).toStrictEqual(mockThread.title);
+    expect(thread.body).toStrictEqual(mockThread.body);
+    expect(thread.date).toStrictEqual(mockThread.date);
+    expect(thread.username).toStrictEqual(mockThread.username);
 
     expect(comments).toContainEqual(
-      new ThreadComment({
-        id: 'comment-123',
-        username: 'dicoding',
-        date: new Date('2021-08-08T07:26:21.338Z'),
-        content: 'Un Comentario',
-        is_delete: false,
-      }),
+      mockComment1,
     );
     expect(firstComment).toStrictEqual(
-      new ThreadComment({
-        id: 'comment-123',
-        username: 'dicoding',
-        date: new Date('2021-08-08T07:26:21.338Z'),
-        content: 'Un Comentario',
-        is_delete: false,
-      }),
+      mockComment1,
     );
     expect(comments).toContainEqual(
-      new ThreadComment({
-        id: 'comment-234',
-        username: 'john',
-        date: new Date('2021-08-08T07:26:21.338Z'),
-        content: 'Un Comentario Eliminado',
-        is_delete: true,
-      }),
+      mockComment2,
     );
     expect(deletedComment).toStrictEqual(
-      new ThreadComment({
-        id: 'comment-234',
-        username: 'john',
-        date: new Date('2021-08-08T07:26:21.338Z'),
-        content: 'Un Comentario Eliminado',
-        is_delete: true,
-      }),
+      mockComment2,
     );
     expect(mockThreadRepository.getThreadById).toBeCalledWith('thread-123');
     expect(mockThreadRepository.getThreadById).toBeCalledTimes(1);
-    expect(mockThreadCommentRepository.getCommentsByThreadId).toBeCalledWith('thread-123');
-    expect(mockThreadCommentRepository.getCommentsByThreadId).toBeCalledTimes(1);
+    expect(mockCommentRepository.getCommentsByThreadId).toBeCalledWith('thread-123');
+    expect(mockCommentRepository.getCommentsByThreadId).toBeCalledTimes(1);
   });
 });

@@ -4,7 +4,7 @@ const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTrans
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
-const threadComments = require('../../Interfaces/http/api/thread_comments');
+const comments = require('../../Interfaces/http/api/comments');
 const authenticationsMiddleware = require('../../Interfaces/http/middleware/authentications');
 
 const createServer = async (container) => {
@@ -36,7 +36,7 @@ const createServer = async (container) => {
       options: { container },
     },
     {
-      plugin: threadComments,
+      plugin: comments,
       options: { container },
     },
   ]);
@@ -62,6 +62,7 @@ const createServer = async (container) => {
       if (!translatedError.isServer) {
         return h.continue;
       }
+      // console.log(response);
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
         status: 'error',

@@ -1,10 +1,10 @@
-const AddThreadComment = require('../../../../Domains/thread_comments/entities/AddThreadComment');
-const NewThreadComment = require('../../../../Domains/thread_comments/entities/NewThreadComment');
+const AddComment = require('../../../../Domains/comments/entities/AddComment');
+const NewComment = require('../../../../Domains/comments/entities/NewComment');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
-const ThreadCommentRepository = require('../../../../Domains/thread_comments/ThreadCommentRepository');
-const AddThreadCommentUseCase = require('../AddThreadCommentUseCase');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const AddCommentUseCase = require('../AddCommentUseCase');
 
-describe('AddThreadCommentUseCase', () => {
+describe('AddCommentUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
@@ -20,13 +20,13 @@ describe('AddThreadCommentUseCase', () => {
       .mockImplementation(() => Promise.reject(new Error('thread tidak ditemukan')));
 
     // create use case instance
-    const addThreadCommentUseCase = new AddThreadCommentUseCase({
+    const addCommentUseCase = new AddCommentUseCase({
       threadRepository: mockThreadRepository,
-      threadCommentRepository: {},
+      commentRepository: {},
     });
 
     // Action & Assert
-    await expect(addThreadCommentUseCase.execute(null, nonexistentThreadId, {}))
+    await expect(addCommentUseCase.execute(null, nonexistentThreadId, {}))
       .rejects
       .toThrowError('thread tidak ditemukan');
   });
@@ -36,7 +36,7 @@ describe('AddThreadCommentUseCase', () => {
     const useCasePayload = {
       content: 'Un Comentario',
     };
-    const mockNewThreadComment = new NewThreadComment({
+    const mockNewComment = new NewComment({
       id: 'comment-123',
       content: 'Un Comentario',
       owner: 'user-123',
@@ -49,22 +49,22 @@ describe('AddThreadCommentUseCase', () => {
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
-    const mockThreadCommentRepository = new ThreadCommentRepository();
+    const mockCommentRepository = new CommentRepository();
 
     // Mocking
     mockThreadRepository.verifyThreadExists = jest.fn()
       .mockImplementation(() => Promise.resolve());
-    mockThreadCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockNewThreadComment));
+    mockCommentRepository.addComment = jest.fn()
+      .mockImplementation(() => Promise.resolve(mockNewComment));
 
     // create use case instance
-    const addThreadCommentUseCase = new AddThreadCommentUseCase({
+    const addCommentUseCase = new AddCommentUseCase({
       threadRepository: mockThreadRepository,
-      threadCommentRepository: mockThreadCommentRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
-    const newComment = await addThreadCommentUseCase
+    const newComment = await addCommentUseCase
       .execute(
         mockCredentials.id,
         'thread-123',
@@ -72,21 +72,21 @@ describe('AddThreadCommentUseCase', () => {
       );
 
     // Assert
-    expect(newComment).toStrictEqual(new NewThreadComment({
+    expect(newComment).toStrictEqual(new NewComment({
       id: 'comment-123',
       content: 'Un Comentario',
       owner: 'user-123',
     }));
 
-    expect(mockThreadCommentRepository.addComment)
+    expect(mockCommentRepository.addComment)
       .toBeCalledWith(
         mockCredentials.id,
         'thread-123',
-        new AddThreadComment({
+        new AddComment({
           content: 'Un Comentario',
         }),
       );
 
-    expect(mockThreadCommentRepository.addComment).toBeCalledTimes(1);
+    expect(mockCommentRepository.addComment).toBeCalledTimes(1);
   });
 });

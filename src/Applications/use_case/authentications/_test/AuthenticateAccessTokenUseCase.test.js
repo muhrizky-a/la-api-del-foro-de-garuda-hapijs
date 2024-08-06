@@ -46,8 +46,7 @@ describe('AuthenticateAccessTokenUseCase', () => {
 
   it('should orchestrating the authentication of access token action correctly', async () => {
     // Arrange
-    const useCasePayload = 'Bearer access_token';
-    const mockedAccessToken = 'access_token';
+    const useCasePayload = 'access_token';
     const mockedDecodedAccessToken = {
       username: 'username',
       id: 'user-123',
@@ -71,8 +70,8 @@ describe('AuthenticateAccessTokenUseCase', () => {
     // Assert
     expect(credentials).toStrictEqual(mockedDecodedAccessToken);
     expect(mockAuthenticationTokenManager.verifyAccessToken)
-      .toHaveBeenCalledWith(mockedAccessToken);
+      .toHaveBeenCalledWith(useCasePayload);
     expect(mockAuthenticationTokenManager.decodePayload)
-      .toHaveBeenCalledWith(mockedAccessToken);
+      .toHaveBeenCalledWith(useCasePayload);
   });
 });

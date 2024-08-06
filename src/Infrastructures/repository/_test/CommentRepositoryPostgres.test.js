@@ -1,16 +1,16 @@
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
-const ThreadCommentsTableTestHelper = require('../../../../tests/ThreadCommentsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const AddThreadComment = require('../../../Domains/thread_comments/entities/AddThreadComment');
-const NewThreadComment = require('../../../Domains/thread_comments/entities/NewThreadComment');
-const ThreadComment = require('../../../Domains/thread_comments/entities/ThreadComment');
+const AddComment = require('../../../Domains/comments/entities/AddComment');
+const NewComment = require('../../../Domains/comments/entities/NewComment');
+const Comment = require('../../../Domains/comments/entities/Comment');
 const pool = require('../../database/postgres/pool');
-const ThreadCommentRepositoryPostgres = require('../ThreadCommentRepositoryPostgres');
+const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
-describe('ThreadCommentRepositoryPostgres', () => {
+describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
-    await ThreadCommentsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
@@ -20,48 +20,48 @@ describe('ThreadCommentRepositoryPostgres', () => {
   });
 
   describe('addComment function', () => {
-    it('should persist add thread comment and return recently aded thread correctly', async () => {
+    it('should persist add comment and return recently added comment correctly', async () => {
       // Arrange
-      const addThreadComment = new AddThreadComment({
+      const addComment = new AddComment({
         content: 'Un Comentario',
       });
       const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
 
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
         pool, fakeIdGenerator,
       );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
       // Action
-      await threadCommentRepositoryPostgres.addComment(fakeThreadOwnerId, 'thread-123', addThreadComment);
+      await commentRepositoryPostgres.addComment(fakeThreadOwnerId, 'thread-123', addComment);
 
       // Assert
-      const comment = await ThreadCommentsTableTestHelper.findCommentsById('comment-123');
+      const comment = await CommentsTableTestHelper.findCommentsById('comment-123');
       expect(comment).toHaveLength(1);
     });
 
-    it('should return recently added thread comment correctly', async () => {
+    it('should return recently added comment correctly', async () => {
       // Arrange
-      const addThreadComment = new AddThreadComment({
+      const addComment = new AddComment({
         content: 'Un Comentario',
       });
       const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
 
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
         pool, fakeIdGenerator,
       );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
       // Action
-      const newComment = await threadCommentRepositoryPostgres
-        .addComment(fakeThreadOwnerId, 'thread-123', addThreadComment);
+      const newComment = await commentRepositoryPostgres
+        .addComment(fakeThreadOwnerId, 'thread-123', addComment);
 
       // Assert
-      expect(newComment).toStrictEqual(new NewThreadComment({
+      expect(newComment).toStrictEqual(new NewComment({
         id: 'comment-123',
         content: 'Un Comentario',
         owner: 'user-123',
@@ -70,16 +70,15 @@ describe('ThreadCommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId function', () => {
-    it('should throw NotFoundError when comment not found', async () => {
+    it('should throw NotFoundError when thread not found', async () => {
       // Arrange
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
+      const nonexistentThreadId = 'thread-xxxxx';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
-      await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
       // Action & Assert
-      expect(1).toStrictEqual(1);
-      await expect(threadCommentRepositoryPostgres
-        .getCommentsByThreadId('comment-xxxxx'))
+      await expect(commentRepositoryPostgres
+        .getCommentsByThreadId(nonexistentThreadId))
         .rejects
         .toThrowError(NotFoundError);
     });
@@ -88,25 +87,25 @@ describe('ThreadCommentRepositoryPostgres', () => {
       // Arrange
       const fakeThreadId = 'thread-123'; // stub thread id
       const fakeIdGenerator = () => '123'; // stub!
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
         pool, fakeIdGenerator,
       );
       await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
-      await ThreadCommentsTableTestHelper.addComment({});
-      await ThreadCommentsTableTestHelper.addComment({
+      await CommentsTableTestHelper.addComment({});
+      await CommentsTableTestHelper.addComment({
         id: 'comment-234',
         content: 'Un Comentario Eliminado',
       });
-      await ThreadCommentsTableTestHelper.deleteComment('comment-234');
+      await CommentsTableTestHelper.deleteComment('comment-234');
 
       // Action
-      const comments = await threadCommentRepositoryPostgres.getCommentsByThreadId(fakeThreadId);
+      const comments = await commentRepositoryPostgres.getCommentsByThreadId(fakeThreadId);
       const [firstComment, deletedComment] = comments;
 
       // // Assert
       expect(comments).toContainEqual(
-        new ThreadComment({
+        new Comment({
           id: 'comment-123',
           username: 'dicoding',
           date: firstComment.date,
@@ -115,7 +114,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
         }),
       );
       expect(firstComment).toStrictEqual(
-        new ThreadComment({
+        new Comment({
           id: 'comment-123',
           username: 'dicoding',
           date: firstComment.date,
@@ -125,7 +124,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
       );
 
       expect(comments).toContainEqual(
-        new ThreadComment({
+        new Comment({
           id: 'comment-234',
           username: 'dicoding',
           date: deletedComment.date,
@@ -134,7 +133,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
         }),
       );
       expect(deletedComment).toStrictEqual(
-        new ThreadComment({
+        new Comment({
           id: 'comment-234',
           username: 'dicoding',
           date: deletedComment.date,
@@ -145,14 +144,28 @@ describe('ThreadCommentRepositoryPostgres', () => {
     });
   });
 
+  describe('verifyCommentOwner function', () => {
+    it('should throw NotFoundError when comment not founr', async () => {
+      // Arrange
+      const nonexistentCommentId = 'comment-xxxxx';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres
+        .verifyCommentOwner(nonexistentCommentId, 'user-123'))
+        .rejects
+        .toThrowError(NotFoundError);
+    });
+  });
+
   describe('deleteComment function', () => {
     it('should throw NotFoundError when comment not available', async () => {
       // Arrange
-      const nonexistentCommentId = 'xxxxx';
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
+      const nonexistentCommentId = 'comment-xxxxx';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(threadCommentRepositoryPostgres.deleteComment(nonexistentCommentId))
+      await expect(commentRepositoryPostgres.deleteComment(nonexistentCommentId))
         .rejects.toThrowError(NotFoundError);
     });
 
@@ -160,19 +173,19 @@ describe('ThreadCommentRepositoryPostgres', () => {
       // Arrange
       const fakeCommentId = 'comment-123'; // stub comment id
 
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
+      const ommentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       /// memasukan user baru dengan data default
       await UsersTableTestHelper.addUser({});
       /// memasukan thread baru dengan data default
       await ThreadsTableTestHelper.addThread({});
       /// memasukan comment baru dengan data default
-      await ThreadCommentsTableTestHelper.addComment({});
+      await CommentsTableTestHelper.addComment({});
 
       // Action
-      await threadCommentRepositoryPostgres.deleteComment(fakeCommentId);
+      await ommentRepositoryPostgres.deleteComment(fakeCommentId);
 
       // Assert
-      const comments = await ThreadCommentsTableTestHelper.findCommentsById(fakeCommentId);
+      const comments = await CommentsTableTestHelper.findCommentsById(fakeCommentId);
       expect(comments).toHaveLength(0);
     });
   });

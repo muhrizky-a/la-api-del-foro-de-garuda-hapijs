@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
-const ThreadCommentsTableTestHelper = {
+const CommentsTableTestHelper = {
   async addComment({
     id = 'comment-123',
     content = 'Un Comentario',
@@ -11,7 +11,7 @@ const ThreadCommentsTableTestHelper = {
     date = new Date().toISOString(),
   }) {
     const query = {
-      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4, $5, $6)',
+      text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5, $6)',
       values: [id, content, threadId, ownerId, is_delete, date],
     };
 
@@ -20,7 +20,7 @@ const ThreadCommentsTableTestHelper = {
 
   async findCommentsById(id) {
     const query = {
-      text: 'SELECT * FROM thread_comments WHERE id = $1 AND is_delete = false',
+      text: 'SELECT * FROM comments WHERE id = $1 AND is_delete = false',
       values: [id],
     };
 
@@ -30,7 +30,7 @@ const ThreadCommentsTableTestHelper = {
 
   async deleteComment(id) {
     const query = {
-      text: 'UPDATE thread_comments SET is_delete = true WHERE id = $1 RETURNING id',
+      text: 'UPDATE comments SET is_delete = true WHERE id = $1 RETURNING id',
       values: [id],
     };
 
@@ -38,8 +38,8 @@ const ThreadCommentsTableTestHelper = {
   },
 
   async cleanTable() {
-    await pool.query('DELETE FROM thread_comments WHERE 1=1');
+    await pool.query('DELETE FROM comments WHERE 1=1');
   },
 };
 
-module.exports = ThreadCommentsTableTestHelper;
+module.exports = CommentsTableTestHelper;

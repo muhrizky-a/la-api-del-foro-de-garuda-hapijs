@@ -1,10 +1,10 @@
-const ThreadComment = require('../../Domains/thread_comments/entities/ThreadComment');
-const NewThreadComment = require('../../Domains/thread_comments/entities/NewThreadComment');
-const ThreadCommentRepository = require('../../Domains/thread_comments/ThreadCommentRepository');
+const Comment = require('../../Domains/comments/entities/Comment');
+const NewComment = require('../../Domains/comments/entities/NewComment');
+const CommentRepository = require('../../Domains/comments/CommentRepository');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 
-class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
+class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
     super();
     this._pool = pool;
@@ -16,28 +16,28 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     const id = `comment-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4) RETURNING id, content, owner',
+      text: 'INSERT INTO comments VALUES($1, $2, $3, $4) RETURNING id, content, owner',
       values: [id, content, threadId, ownerId],
     };
 
     const result = await this._pool.query(query);
 
-    return new NewThreadComment({ ...result.rows[0] });
+    return new NewComment({ ...result.rows[0] });
   }
 
   async getCommentsByThreadId(threadId) {
     const query = {
-      text: `SELECT thread_comments.id,
-      thread_comments.id,
-      thread_comments.content,
-      thread_comments.date,
-      thread_comments.is_delete,
+      text: `SELECT comments.id,
+      comments.id,
+      comments.content,
+      comments.date,
+      comments.is_delete,
       users.username
-      FROM thread_comments
+      FROM comments
       INNER JOIN users
-      ON thread_comments.owner = users.id
-      WHERE thread_comments.thread_id = $1
-      ORDER BY thread_comments.date ASC`,
+      ON comments.owner = users.id
+      WHERE comments.thread_id = $1
+      ORDER BY comments.date ASC`,
       values: [threadId],
     };
     const result = await this._pool.query(query);
@@ -45,12 +45,12 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     if (!result.rowCount) {
       throw new NotFoundError('comment tidak ditemukan');
     }
-    return result.rows.map((comment) => new ThreadComment({ ...comment }));
+    return result.rows.map((comment) => new Comment({ ...comment }));
   }
 
   async verifyCommentOwner(id, owner) {
     const query = {
-      text: 'SELECT * FROM thread_comments WHERE id = $1',
+      text: 'SELECT * FROM comments WHERE id = $1',
       values: [id],
     };
 
@@ -68,7 +68,7 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
 
   async deleteComment(id) {
     const query = {
-      text: 'UPDATE thread_comments SET is_delete = true WHERE id = $1 RETURNING id',
+      text: 'UPDATE comments SET is_delete = true WHERE id = $1 RETURNING id',
       values: [id],
     };
 
@@ -80,4 +80,4 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
   }
 }
 
-module.exports = ThreadCommentRepositoryPostgres;
+module.exports = CommentRepositoryPostgres;

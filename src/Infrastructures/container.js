@@ -12,11 +12,11 @@ const pool = require('./database/postgres/pool');
 const UserRepository = require('../Domains/users/UserRepository');
 const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
 const ThreadRepository = require('../Domains/threads/ThreadRepository');
-const ThreadCommentRepository = require('../Domains/thread_comments/ThreadCommentRepository');
+const CommentRepository = require('../Domains/comments/CommentRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
 const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
-const ThreadCommentRepositoryPostgres = require('./repository/ThreadCommentRepositoryPostgres');
+const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -30,8 +30,8 @@ const RefreshAuthenticationUseCase = require('../Applications/use_case/authentic
 const AuthenticateAccessTokenUseCase = require('../Applications/use_case/authentications/AuthenticateAccessTokenUseCase');
 const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseCase');
 const GetThreadByIdUseCase = require('../Applications/use_case/threads/GetThreadByIdUseCase');
-const AddThreadCommentUseCase = require('../Applications/use_case/thread_comments/AddThreadCommentUseCase');
-const DeleteThreadCommentUseCase = require('../Applications/use_case/thread_comments/DeleteThreadCommentUseCase');
+const AddCommentUseCase = require('../Applications/use_case/comments/AddCommentUseCase');
+const DeleteCommentUseCase = require('../Applications/use_case/comments/DeleteCommentUseCase');
 
 // creating container
 const container = createContainer();
@@ -78,8 +78,8 @@ container.register([
     },
   },
   {
-    key: ThreadCommentRepository.name,
-    Class: ThreadCommentRepositoryPostgres,
+    key: CommentRepository.name,
+    Class: CommentRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -226,15 +226,15 @@ container.register([
           internal: ThreadRepository.name,
         },
         {
-          name: 'threadCommentRepository',
-          internal: ThreadCommentRepository.name,
+          name: 'commentRepository',
+          internal: CommentRepository.name,
         },
       ],
     },
   },
   {
-    key: AddThreadCommentUseCase.name,
-    Class: AddThreadCommentUseCase,
+    key: AddCommentUseCase.name,
+    Class: AddCommentUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
@@ -243,15 +243,15 @@ container.register([
           internal: ThreadRepository.name,
         },
         {
-          name: 'threadCommentRepository',
-          internal: ThreadCommentRepository.name,
+          name: 'commentRepository',
+          internal: CommentRepository.name,
         },
       ],
     },
   },
   {
-    key: DeleteThreadCommentUseCase.name,
-    Class: DeleteThreadCommentUseCase,
+    key: DeleteCommentUseCase.name,
+    Class: DeleteCommentUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
@@ -260,8 +260,8 @@ container.register([
           internal: ThreadRepository.name,
         },
         {
-          name: 'threadCommentRepository',
-          internal: ThreadCommentRepository.name,
+          name: 'commentRepository',
+          internal: CommentRepository.name,
         },
       ],
     },

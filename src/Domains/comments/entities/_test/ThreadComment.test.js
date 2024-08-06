@@ -1,6 +1,6 @@
-const ThreadComment = require('../ThreadComment');
+const Comment = require('../Comment');
 
-describe('ThreadComment entities', () => {
+describe('Comment entities', () => {
   it('should throw error when payload not contain needed property', () => {
     // Arrange
     const payload = {
@@ -8,7 +8,7 @@ describe('ThreadComment entities', () => {
     };
 
     // Action & Assert
-    expect(() => new ThreadComment(payload)).toThrowError('THREAD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new Comment(payload)).toThrowError('COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -22,10 +22,10 @@ describe('ThreadComment entities', () => {
     };
 
     // Action & Assert
-    expect(() => new ThreadComment(payload)).toThrowError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new Comment(payload)).toThrowError('COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-  it('should create ThreadComment entities correctly', () => {
+  it('should create Comment entities correctly', () => {
     // Arrange
     const payload = {
       id: 'comment-123',
@@ -43,17 +43,17 @@ describe('ThreadComment entities', () => {
     };
 
     // Action
-    const comment = new ThreadComment(payload);
-    const deletedComment = new ThreadComment(secondPayload);
+    const comment = new Comment(payload);
+    const deletedComment = new Comment(secondPayload);
 
     // Assert
-    expect(comment).toBeInstanceOf(ThreadComment);
+    expect(comment).toBeInstanceOf(Comment);
     expect(comment.id).toEqual(payload.id);
     expect(comment.username).toEqual(payload.username);
     expect(comment.date).toEqual(payload.date);
     expect(comment.content).toEqual(payload.content);
 
-    expect(deletedComment).toBeInstanceOf(ThreadComment);
+    expect(deletedComment).toBeInstanceOf(Comment);
     expect(deletedComment.id).toEqual(secondPayload.id);
     expect(deletedComment.username).toEqual(secondPayload.username);
     expect(deletedComment.date).toEqual(secondPayload.date);
