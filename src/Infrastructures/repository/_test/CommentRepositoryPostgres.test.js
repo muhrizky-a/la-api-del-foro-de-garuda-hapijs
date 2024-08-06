@@ -7,6 +7,7 @@ const NewComment = require('../../../Domains/comments/entities/NewComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -145,16 +146,57 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('verifyCommentOwner function', () => {
-    it('should throw NotFoundError when comment not founr', async () => {
+    it('should throw NotFoundError when comment not found', async () => {
       // Arrange
+      const fakeUserId = 'user-123'; // stub user id
       const nonexistentCommentId = 'comment-xxxxx';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(commentRepositoryPostgres
-        .verifyCommentOwner(nonexistentCommentId, 'user-123'))
+        .verifyCommentOwner(nonexistentCommentId, fakeUserId))
         .rejects
         .toThrowError(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when user does not own the comment', async () => {
+      // Arrange
+      const unauthorizedUserId = 'user-xxx'; // stub user id
+      const fakeCommentId = 'comment-123'; // stub comment id
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      /// memasukan user baru dengan data default
+      await UsersTableTestHelper.addUser({});
+      /// memasukan thread baru dengan data default
+      await ThreadsTableTestHelper.addThread({});
+      /// memasukan comment baru dengan data default
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres
+        .verifyCommentOwner(fakeCommentId, unauthorizedUserId))
+        .rejects
+        .toThrowError(AuthorizationError);
+    });
+
+    it('should not throw AuthorizationError when user owns the comment', async () => {
+      // Arrange
+      const authorizedUserId = 'user-123'; // stub user id
+      const fakeCommentId = 'comment-123'; // stub comment id
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      /// memasukan user baru dengan data default
+      await UsersTableTestHelper.addUser({});
+      /// memasukan thread baru dengan data default
+      await ThreadsTableTestHelper.addThread({});
+      /// memasukan comment baru dengan data default
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres
+        .verifyCommentOwner(fakeCommentId, authorizedUserId))
+        .resolves
+        .not.toThrowError(AuthorizationError);
     });
   });
 
@@ -173,7 +215,7 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const fakeCommentId = 'comment-123'; // stub comment id
 
-      const ommentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       /// memasukan user baru dengan data default
       await UsersTableTestHelper.addUser({});
       /// memasukan thread baru dengan data default
@@ -182,7 +224,7 @@ describe('CommentRepositoryPostgres', () => {
       await CommentsTableTestHelper.addComment({});
 
       // Action
-      await ommentRepositoryPostgres.deleteComment(fakeCommentId);
+      await commentRepositoryPostgres.deleteComment(fakeCommentId);
 
       // Assert
       const comments = await CommentsTableTestHelper.findCommentsById(fakeCommentId);
