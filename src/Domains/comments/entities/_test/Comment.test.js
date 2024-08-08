@@ -27,7 +27,7 @@ describe('Comment entities', () => {
 
   it('should create Comment entities correctly', () => {
     // Arrange
-    const payload = {
+    const firstPayload = {
       id: 'comment-123',
       username: 'username',
       date: new Date('2021-08-08T07:19:09.775Z'),
@@ -43,15 +43,15 @@ describe('Comment entities', () => {
     };
 
     // Action
-    const comment = new Comment(payload);
+    const comment = new Comment(firstPayload);
     const deletedComment = new Comment(secondPayload);
 
     // Assert
     expect(comment).toBeInstanceOf(Comment);
-    expect(comment.id).toEqual(payload.id);
-    expect(comment.username).toEqual(payload.username);
-    expect(comment.date).toEqual(payload.date);
-    expect(comment.content).toEqual(payload.content);
+    expect(comment.id).toEqual(firstPayload.id);
+    expect(comment.username).toEqual(firstPayload.username);
+    expect(comment.date).toEqual(firstPayload.date);
+    expect(comment.content).toEqual(firstPayload.content);
 
     expect(deletedComment).toBeInstanceOf(Comment);
     expect(deletedComment.id).toEqual(secondPayload.id);

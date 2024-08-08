@@ -46,6 +46,7 @@ describe('GetThreadByIdUseCase', () => {
       username: 'dicoding',
       date: new Date('2021-08-08T07:26:21.338Z'),
       content: 'Un Comentario',
+      owner: 'user-123',
       is_delete: false,
     });
     const mockComment2 = new Comment({
@@ -53,6 +54,7 @@ describe('GetThreadByIdUseCase', () => {
       username: 'john',
       date: new Date('2021-08-08T07:26:21.338Z'),
       content: 'Un Comentario Eliminado',
+      owner: 'user-234',
       is_delete: true,
     });
 
@@ -79,6 +81,7 @@ describe('GetThreadByIdUseCase', () => {
             username: 'dicoding',
             date: new Date('2021-08-08T07:26:21.338Z'),
             content: 'Un Comentario',
+            owner: 'user-123',
             is_delete: false,
           }),
           new Comment({
@@ -86,6 +89,7 @@ describe('GetThreadByIdUseCase', () => {
             username: 'john',
             date: new Date('2021-08-08T07:26:21.338Z'),
             content: 'Un Comentario Eliminado',
+            owner: 'user-234',
             is_delete: true,
           }),
         ],

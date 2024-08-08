@@ -1,7 +1,7 @@
 const Comment = require('../../Domains/comments/entities/Comment');
+const ExistingComment = require('../../Domains/comments/entities/ExistingComment');
 const NewComment = require('../../Domains/comments/entities/NewComment');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -48,9 +48,9 @@ class CommentRepositoryPostgres extends CommentRepository {
     return result.rows.map((comment) => new Comment({ ...comment }));
   }
 
-  async verifyCommentOwner(id, owner) {
+  async verifyCommentExists(id) {
     const query = {
-      text: 'SELECT * FROM comments WHERE id = $1',
+      text: 'SELECT id, owner FROM comments WHERE id = $1',
       values: [id],
     };
 
@@ -60,10 +60,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new NotFoundError('comment tidak ditemukan');
     }
 
-    const comment = result.rows[0];
-    if (comment.owner !== owner) {
-      throw new AuthorizationError('anda tidak berhak mengakses comment ini');
-    }
+    return new ExistingComment({ ...result.rows[0] });
   }
 
   async deleteComment(id) {

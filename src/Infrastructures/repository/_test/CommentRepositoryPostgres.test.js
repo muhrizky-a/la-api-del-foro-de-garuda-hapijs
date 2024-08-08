@@ -8,6 +8,7 @@ const Comment = require('../../../Domains/comments/entities/Comment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const ExistingComment = require('../../../Domains/comments/entities/ExistingComment');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -145,25 +146,21 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('verifyCommentOwner function', () => {
+  describe('verifyCommentExists function', () => {
     it('should throw NotFoundError when comment not found', async () => {
       // Arrange
-      const fakeUserId = 'user-123'; // stub user id
       const nonexistentCommentId = 'comment-xxxxx';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres
-        .verifyCommentOwner(nonexistentCommentId, fakeUserId))
+      await expect(commentRepositoryPostgres.verifyCommentExists(nonexistentCommentId))
         .rejects
         .toThrowError(NotFoundError);
     });
 
-    it('should throw AuthorizationError when user does not own the comment', async () => {
+    it('should return existing comment correctly', async () => {
       // Arrange
-      const unauthorizedUserId = 'user-xxx'; // stub user id
-      const fakeCommentId = 'comment-123'; // stub comment id
-
+      const commentId = 'comment-123'; // stub comment id
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       /// memasukan user baru dengan data default
       await UsersTableTestHelper.addUser({});
@@ -172,31 +169,16 @@ describe('CommentRepositoryPostgres', () => {
       /// memasukan comment baru dengan data default
       await CommentsTableTestHelper.addComment({});
 
-      // Action & Assert
-      await expect(commentRepositoryPostgres
-        .verifyCommentOwner(fakeCommentId, unauthorizedUserId))
-        .rejects
-        .toThrowError(AuthorizationError);
-    });
+      // Action
+      const existingComment = await commentRepositoryPostgres.verifyCommentExists(commentId);
 
-    it('should not throw AuthorizationError when user owns the comment', async () => {
-      // Arrange
-      const authorizedUserId = 'user-123'; // stub user id
-      const fakeCommentId = 'comment-123'; // stub comment id
-
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      /// memasukan user baru dengan data default
-      await UsersTableTestHelper.addUser({});
-      /// memasukan thread baru dengan data default
-      await ThreadsTableTestHelper.addThread({});
-      /// memasukan comment baru dengan data default
-      await CommentsTableTestHelper.addComment({});
-
-      // Action & Assert
-      await expect(commentRepositoryPostgres
-        .verifyCommentOwner(fakeCommentId, authorizedUserId))
-        .resolves
-        .not.toThrowError(AuthorizationError);
+      // Assert
+      expect(existingComment).toStrictEqual(
+        new ExistingComment({
+          id: 'comment-123',
+          owner: 'user-123',
+        }),
+      );
     });
   });
 
@@ -213,8 +195,7 @@ describe('CommentRepositoryPostgres', () => {
 
     it('should delete a comment from database', async () => {
       // Arrange
-      const fakeCommentId = 'comment-123'; // stub comment id
-
+      const commentId = 'comment-123'; // stub comment id
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       /// memasukan user baru dengan data default
       await UsersTableTestHelper.addUser({});
@@ -224,10 +205,10 @@ describe('CommentRepositoryPostgres', () => {
       await CommentsTableTestHelper.addComment({});
 
       // Action
-      await commentRepositoryPostgres.deleteComment(fakeCommentId);
+      await commentRepositoryPostgres.deleteComment(commentId);
 
       // Assert
-      const comments = await CommentsTableTestHelper.findCommentsById(fakeCommentId);
+      const comments = await CommentsTableTestHelper.findCommentsById(commentId);
       expect(comments).toHaveLength(0);
     });
   });

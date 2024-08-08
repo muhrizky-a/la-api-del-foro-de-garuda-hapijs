@@ -6,7 +6,12 @@ class DeleteCommentUseCase {
 
   async execute(ownerId, threadId, commentId) {
     await this._threadRepository.verifyThreadExists(threadId);
-    await this._commentRepository.verifyCommentOwner(commentId, ownerId);
+
+    const existingComment = await this._commentRepository.verifyCommentExists(commentId);
+    if (existingComment.owner !== ownerId) {
+      throw new Error('DELETE_COMMENT_USE_CASE.USER_NOT_AUTHORIZED');
+    }
+
     await this._commentRepository.deleteComment(commentId);
   }
 }
