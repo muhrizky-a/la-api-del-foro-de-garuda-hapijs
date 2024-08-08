@@ -30,11 +30,11 @@ describe('ExistingComment entities', () => {
     };
 
     // Action
-    const comment = new ExistingComment(payload);
+    const existingComment = new ExistingComment(payload);
 
     // Assert
-    expect(comment).toBeInstanceOf(ExistingComment);
-    expect(comment.id).toEqual(payload.id);
-    expect(comment.owner).toEqual(payload.owner);
+    expect(existingComment).toBeInstanceOf(ExistingComment);
+    expect(existingComment.id).toEqual(payload.id);
+    expect(existingComment.owner).toEqual(payload.owner);
   });
 });
