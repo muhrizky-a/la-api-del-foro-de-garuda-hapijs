@@ -9,7 +9,7 @@ module.exports = {
       authenticate: authenticationsMiddleware.authenticateAccessTokenHandler,
     });
 
-    server.auth.scheme('forumapi_custom', authenticationScheme);
-    server.auth.strategy('forumapi_custom_jwt', 'forumapi_custom');
+    server.auth.scheme('forumapi_custom_scheme', authenticationScheme);
+    server.auth.strategy('forumapi_custom_jwt', 'forumapi_custom_scheme');
   },
 };

@@ -1,4 +1,4 @@
-const AuthenticateAccessTokenUseCase = require('../../../../Applications/use_case/authentications/AuthenticateAccessTokenUseCase');
+const AccessTokenAuthenticator = require('../../../../Applications/middleware/authentications/AccessTokenAuthenticator');
 
 class AuthenticationsMiddleware {
   constructor(container) {
@@ -8,11 +8,11 @@ class AuthenticationsMiddleware {
   }
 
   async authenticateAccessTokenHandler(request, h) {
-    const authenticateAccessTokenUseCase = this._container
-      .getInstance(AuthenticateAccessTokenUseCase.name);
+    const accessTokenAuthenticator = this._container
+      .getInstance(AccessTokenAuthenticator.name);
 
-    const accessToken = request.headers.authorization.replace('Bearer ', '');
-    const credentials = await authenticateAccessTokenUseCase.execute(accessToken);
+    const authorizationHeader = request.headers.authorization;
+    const credentials = await accessTokenAuthenticator.execute(authorizationHeader);
     return h.authenticated({ credentials });
   }
 }
