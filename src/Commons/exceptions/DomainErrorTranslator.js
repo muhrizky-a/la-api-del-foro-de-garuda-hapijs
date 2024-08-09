@@ -26,6 +26,9 @@ DomainErrorTranslator._directories = {
   'ADD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada'),
   'ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat komentar baru karena tipe data tidak sesuai'),
   'DELETE_COMMENT_USE_CASE.USER_NOT_AUTHORIZED': new AuthorizationError('anda tidak berhak mengakses comment ini'),
+  'ADD_REPLY.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat balasan baru karena properti yang dibutuhkan tidak ada'),
+  'ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat balasan baru karena tipe data tidak sesuai'),
+  'DELETE_REPLY_USE_CASE.USER_NOT_AUTHORIZED': new AuthorizationError('anda tidak berhak mengakses balasan ini'),
 };
 
 module.exports = DomainErrorTranslator;

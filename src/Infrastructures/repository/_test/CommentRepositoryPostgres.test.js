@@ -26,7 +26,7 @@ describe('CommentRepositoryPostgres', () => {
       const addComment = new AddComment({
         content: 'Un Comentario',
       });
-      const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
+      const fakeCommentOwnerId = 'user-123'; // stub user id of the comment owner
 
       const fakeIdGenerator = () => '123'; // stub!
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
@@ -36,11 +36,11 @@ describe('CommentRepositoryPostgres', () => {
       await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
 
       // Action
-      await commentRepositoryPostgres.addComment(fakeThreadOwnerId, 'thread-123', addComment);
+      await commentRepositoryPostgres.addComment(fakeCommentOwnerId, 'thread-123', addComment);
 
       // Assert
-      const comment = await CommentsTableTestHelper.findCommentsById('comment-123');
-      expect(comment).toHaveLength(1);
+      const comments = await CommentsTableTestHelper.findCommentsById('comment-123');
+      expect(comments).toHaveLength(1);
     });
 
     it('should return recently added comment correctly', async () => {
@@ -48,7 +48,7 @@ describe('CommentRepositoryPostgres', () => {
       const addComment = new AddComment({
         content: 'Un Comentario',
       });
-      const fakeThreadOwnerId = 'user-123'; // stub user id of the thread owner
+      const fakeCommentOwnerId = 'user-123'; // stub user id of the comment owner
 
       const fakeIdGenerator = () => '123'; // stub!
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
@@ -59,7 +59,7 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action
       const newComment = await commentRepositoryPostgres
-        .addComment(fakeThreadOwnerId, 'thread-123', addComment);
+        .addComment(fakeCommentOwnerId, 'thread-123', addComment);
 
       // Assert
       expect(newComment).toStrictEqual(new NewComment({
@@ -71,7 +71,7 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId function', () => {
-    it('should throw NotFoundError when thread not found', async () => {
+    it('should return empty when thread not found', async () => {
       // Arrange
       const nonexistentThreadId = 'thread-xxxxx';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -80,8 +80,8 @@ describe('CommentRepositoryPostgres', () => {
       // Action & Assert
       await expect(commentRepositoryPostgres
         .getCommentsByThreadId(nonexistentThreadId))
-        .rejects
-        .toThrowError(NotFoundError);
+        .resolves
+        .toHaveLength(0);
     });
 
     it('should return comment correctly', async () => {

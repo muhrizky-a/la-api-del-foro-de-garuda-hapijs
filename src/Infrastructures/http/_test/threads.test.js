@@ -210,17 +210,20 @@ describe('/threads endpoint', () => {
       const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
 
       /// add new (two) comments
-      await _addComment({
+      const addFirstCommentResponse = await _addComment({
         server,
         threadId,
         accessToken: accessTokenDicoding,
       });
+      const firstCommentId = JSON.parse(addFirstCommentResponse.payload).data.addedComment.id;
+
       const addSecondCommentResponse = await _addComment({
         server,
         threadId,
         accessToken: accessTokenJohn,
       });
       const secondCommentId = JSON.parse(addSecondCommentResponse.payload).data.addedComment.id;
+
       /// delete john comment (john)
       await server.inject({
         method: 'DELETE',
@@ -238,19 +241,28 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      const deletedComment = [...responseJson.data.thread.comments].pop();
+      // const [deletedComment] = [...responseJson.data.thread.comments].pop();
+      const [firstComment, deletedComment] = responseJson.data.thread.comments;
 
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.thread).toBeDefined();
       expect(responseJson.data.thread.comments).toBeDefined();
       expect(responseJson.data.thread.comments).toHaveLength(2);
-      /// check the deleted comment
+      /// check the comments
+      expect(firstComment).toStrictEqual({
+        id: firstCommentId,
+        username: 'dicoding',
+        date: firstComment.date,
+        content: 'Un Comentario',
+        replies: [],
+      });
       expect(deletedComment).toStrictEqual({
         id: secondCommentId,
         username: 'john',
         date: deletedComment.date,
         content: '**komentar telah dihapus**',
+        replies: [],
       });
     });
 

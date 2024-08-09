@@ -1,41 +1,45 @@
-const ExistingComment = require('../../../../Domains/comments/entities/ExistingComment');
+const AddReply = require('../../../../Domains/replies/entities/AddReply');
+const NewReply = require('../../../../Domains/replies/entities/NewReply');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../../Domains/comments/CommentRepository');
-const DeleteCommentUseCase = require('../DeleteCommentUseCase');
+const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
+const AddReplyUseCase = require('../AddReplyUseCase');
 
-describe('DeleteCommentUseCase', () => {
+describe('AddReplyUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
+
   it('should throw error if thread not exist', async () => {
     // Arrange
-    const userId = 'user-123';
     const nonexistentThreadId = 'xxxxx';
-    const commentId = 'comment-xxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
-    const mockCommentRepository = new CommentRepository();
 
     // Mocking
     mockThreadRepository.verifyThreadExists = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('thread tidak ditemukan')));
 
     // create use case instance
-    const deleteCommentUseCase = new DeleteCommentUseCase({
+    const addReplyUseCase = new AddReplyUseCase({
       threadRepository: mockThreadRepository,
-      commentRepository: mockCommentRepository,
+      commentRepository: {},
+      replyRepository: {},
     });
 
     // Action & Assert
-    await expect(deleteCommentUseCase.execute(userId, nonexistentThreadId, commentId))
-      .rejects
+    await expect(
+      addReplyUseCase.execute(null, nonexistentThreadId, {}, {})
+    ).rejects
       .toThrowError('thread tidak ditemukan');
+
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(nonexistentThreadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
   });
 
   it('should throw error if comment not exist', async () => {
     // Arrange
-    const userId = 'user-123';
     const threadId = 'thread-123';
     const nonexistentCommentId = 'xxxxx';
 
@@ -50,86 +54,91 @@ describe('DeleteCommentUseCase', () => {
       .mockImplementation(() => Promise.reject(new Error('comment tidak ditemukan')));
 
     // create use case instance
-    const deleteCommentUseCase = new DeleteCommentUseCase({
+    const addReplyUseCase = new AddReplyUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
+      replyRepository: {},
     });
 
     // Action & Assert
-    await expect(deleteCommentUseCase.execute(userId, threadId, nonexistentCommentId))
-      .rejects
+    await expect(
+      addReplyUseCase.execute(null, threadId, nonexistentCommentId, {})
+    ).rejects
       .toThrowError('comment tidak ditemukan');
+
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(nonexistentCommentId);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
   });
 
-  it('should throw error if user not owns the comment', async () => {
+  it('should orchestrating the add reply action correctly', async () => {
     // Arrange
     const threadId = 'thread-123';
     const commentId = 'comment-123';
-    const unauthorizeUserId = 'user-xxxxx';
-    const mockExistingComment = new ExistingComment({
-      id: 'comment-123',
+
+    const useCasePayload = {
+      content: 'Una Respuesta',
+    };
+    const mockNewReply = new NewReply({
+      id: 'reply-123',
+      content: 'Una Respuesta',
       owner: 'user-123',
     });
+    // Credentials taken from decoded JWT
+    const mockCredentials = {
+      id: 'user-123',
+      username: 'dicoding',
+    };
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
 
     // Mocking
     mockThreadRepository.verifyThreadExists = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentExists = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockExistingComment));
+      .mockImplementation(() => Promise.resolve());
+    mockReplyRepository.addReply = jest.fn()
+      .mockImplementation(() => Promise.resolve(mockNewReply));
 
     // create use case instance
-    const deleteCommentUseCase = new DeleteCommentUseCase({
+    const addReplyUseCase = new AddReplyUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
-    });
-
-    // Action & Assert
-    await expect(deleteCommentUseCase.execute(unauthorizeUserId, threadId, commentId))
-      .rejects
-      .toThrowError('DELETE_COMMENT_USE_CASE.USER_NOT_AUTHORIZED');
-  });
-
-  it('should orchestrating the delete comment action correctly', async () => {
-    // Arrange
-    const threadId = 'thread-123';
-    const commentId = 'comment-123';
-    const ownerId = 'user-123';
-    const mockExistingComment = new ExistingComment({
-      id: 'comment-123',
-      owner: 'user-123',
-    });
-
-    // create dependency of use case
-    const mockThreadRepository = new ThreadRepository();
-    const mockCommentRepository = new CommentRepository();
-
-    // Mocking
-    mockThreadRepository.verifyThreadExists = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.verifyCommentExists = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockExistingComment));
-    mockCommentRepository.deleteComment = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-
-    // create use case instance
-    const deleteCommentUseCase = new DeleteCommentUseCase({
-      threadRepository: mockThreadRepository,
-      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
     });
 
     // Action
-    await deleteCommentUseCase.execute(ownerId, threadId, commentId);
+    const newReply = await addReplyUseCase
+      .execute(
+        mockCredentials.id,
+        threadId,
+        commentId,
+        useCasePayload,
+      );
 
     // Assert
+    expect(newReply).toStrictEqual(new NewReply({
+      id: 'reply-123',
+      content: 'Una Respuesta',
+      owner: 'user-123',
+    }));
+
     expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
     expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
     expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(commentId);
     expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
-    expect(mockCommentRepository.deleteComment).toBeCalledWith(commentId);
-    expect(mockCommentRepository.deleteComment).toBeCalledTimes(1);
+    expect(mockReplyRepository.addReply)
+      .toBeCalledWith(
+        mockCredentials.id,
+        commentId,
+        new AddReply({
+          content: 'Una Respuesta',
+        }),
+      );
+    expect(mockReplyRepository.addReply).toBeCalledTimes(1);
   });
 });
