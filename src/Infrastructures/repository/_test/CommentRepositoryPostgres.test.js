@@ -5,10 +5,9 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddComment = require('../../../Domains/comments/entities/AddComment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
+const ExistingComment = require('../../../Domains/comments/entities/ExistingComment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const ExistingComment = require('../../../Domains/comments/entities/ExistingComment');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
