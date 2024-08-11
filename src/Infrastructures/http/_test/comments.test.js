@@ -93,6 +93,58 @@ describe('/threads/:id/comments endpoint', () => {
       expect(responseJson.data.addedComment).toBeDefined();
     });
 
+    it('should response 401 when authentication is empty', async () => {
+      // Arrange
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      /// add user
+      await _addUser({ server });
+      /// login user
+      const loginResponse = await _login({ server });
+      const { data: { accessToken } } = JSON.parse(loginResponse.payload);
+      /// add new thread
+      const addThreadResponse = await _addThread({ server, accessToken });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+
+      // Action
+      const response = await _addComment({ server, threadId });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
+    });
+
+    it('should response 401 when include tampered authentication', async () => {
+      // Arrange
+      const tamperedAccessToken = 'tampered_access_token';
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      /// add user
+      await _addUser({ server });
+      /// login user
+      const loginResponse = await _login({ server });
+      const { data: { accessToken } } = JSON.parse(loginResponse.payload);
+      /// add new thread
+      const addThreadResponse = await _addThread({ server, accessToken });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+
+      // Action
+      const response = await _addComment({
+        server,
+        threadId,
+        accessToken: `${accessToken}-${tamperedAccessToken}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
+    });
+
     it('should response 404 when thread not exists', async () => {
       // Arrange
       const requestPayload = {}; // mock payload
@@ -217,6 +269,82 @@ describe('/threads/:id/comments endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 401 when authentication is empty', async () => {
+      // Arrange
+      const requestPayload = {
+        content: 'Un Comentario',
+      };
+      const server = await createServer(container);
+      /// add user
+      await _addUser({ server });
+      /// login user
+      const loginResponse = await _login({ server });
+      const { data: { accessToken } } = JSON.parse(loginResponse.payload);
+      /// add new thread
+      const addThreadResponse = await _addThread({ server, accessToken });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+      /// add new comment
+      const addCommentResponse = await _addComment({
+        server,
+        threadId,
+        requestPayload,
+        accessToken,
+      });
+      const commentId = JSON.parse(addCommentResponse.payload).data.addedComment.id;
+
+      // Action
+      const response = await _deleteComment({
+        server,
+        threadId,
+        commentId,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
+    });
+
+    it('should response 401 when include tampered authentication', async () => {
+      // Arrange
+      const requestPayload = {
+        content: 'Un Comentario',
+      };
+      const tamperedAccessToken = 'tampered_access_token';
+      const server = await createServer(container);
+      /// add user
+      await _addUser({ server });
+      /// login user
+      const loginResponse = await _login({ server });
+      const { data: { accessToken } } = JSON.parse(loginResponse.payload);
+      /// add new thread
+      const addThreadResponse = await _addThread({ server, accessToken });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+      /// add new comment
+      const addCommentResponse = await _addComment({
+        server,
+        threadId,
+        requestPayload,
+        accessToken,
+      });
+      const commentId = JSON.parse(addCommentResponse.payload).data.addedComment.id;
+
+      // Action
+      const response = await _deleteComment({
+        server,
+        threadId,
+        commentId,
+        accessToken: `${accessToken}-${tamperedAccessToken}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
     });
 
     it('should response 404 when thread not exists', async () => {

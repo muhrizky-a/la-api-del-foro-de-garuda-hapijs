@@ -41,6 +41,22 @@ describe('/threads endpoint', () => {
     },
   });
 
+  const _addReply = async ({
+    server,
+    threadId,
+    commentId,
+    accessToken,
+  }) => server.inject({
+    method: 'POST',
+    url: `/threads/${threadId}/comments/${commentId}/replies`,
+    payload: {
+      content: 'Una Respuesta',
+    },
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+    },
+  });
+
   describe('when POST /threads', () => {
     it('should response 201 and persisted thread', async () => {
       // Arrange
@@ -64,6 +80,35 @@ describe('/threads endpoint', () => {
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedThread).toBeDefined();
+    });
+
+    it('should response 401 when authentication is empty', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      // Action
+      const response = await _addThread({ server });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
+    });
+
+    it('should response 401 when include tampered authentication', async () => {
+      // Arrange
+      const tamperedAccessToken = 'tampered_access_token';
+      const server = await createServer(container);
+
+      // Action
+      const response = await _addThread({ server, accessToken: tamperedAccessToken });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak valid');
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
@@ -241,7 +286,6 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      // const [deletedComment] = [...responseJson.data.thread.comments].pop();
       const [firstComment, deletedComment] = responseJson.data.thread.comments;
 
       expect(response.statusCode).toEqual(200);
@@ -263,6 +307,130 @@ describe('/threads endpoint', () => {
         date: deletedComment.date,
         content: '**komentar telah dihapus**',
         replies: [],
+      });
+    });
+
+    it('should response 200 and return thread with a comments, a reply and a deleted reply', async () => {
+      // Arrange
+      const addThreadRequestPayload = {
+        title: 'Un Hilo',
+        body: 'Un Contenido',
+      };
+      const server = await createServer(container);
+      /// add user dicoding
+      await _addUser({ server });
+      /// add user john
+      await _addUser({
+        server,
+        username: 'john',
+        fullname: 'John Rambo',
+      });
+      /// login user dicoding
+      const loginResponseDicoding = await _login({ server });
+      const {
+        data: { accessToken: accessTokenDicoding },
+      } = JSON.parse(loginResponseDicoding.payload);
+      /// login user john
+      const loginResponseJohn = await _login({
+        server,
+        username: 'john',
+      });
+      const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
+      /// add new thread (dicoding)
+      const addThreadResponse = await _addThread({
+        server,
+        requestPayload: addThreadRequestPayload,
+        accessToken: accessTokenDicoding,
+      });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+
+      /// add reply (dicoding)
+      const addCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenDicoding,
+      });
+      const commentId = JSON.parse(addCommentResponse.payload).data.addedComment.id;
+
+      /// add (two) new replies
+      const addFirstReplyResponse = await _addReply({
+        server,
+        threadId,
+        commentId,
+        accessToken: accessTokenDicoding,
+      });
+      const firstReplyId = JSON.parse(addFirstReplyResponse.payload).data.addedReply.id;
+      const addSecondReplyResponse = await _addReply({
+        server,
+        threadId,
+        commentId,
+        accessToken: accessTokenJohn,
+      });
+      const secondReplyId = JSON.parse(addSecondReplyResponse.payload).data.addedReply.id;
+
+      /// delete john reply (john)
+      await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}/replies/${secondReplyId}`,
+        headers: {
+          authorization: `Bearer ${accessTokenJohn}`,
+        },
+      });
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      /// get the sole comment
+      const comment = [...responseJson.data.thread.comments].pop();
+      const replies = comment.replies;
+      const [firstReply, deletedReply] = replies;
+
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+
+      /// check the comments
+      expect(responseJson.data.thread.comments).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(1);
+      expect(comment).toStrictEqual({
+        id: comment.id,
+        username: 'dicoding',
+        date: comment.date,
+        content: 'Un Comentario',
+        replies: [
+          {
+            id: firstReplyId,
+            username: 'dicoding',
+            date: firstReply.date,
+            content: 'Una Respuesta',
+          },
+          {
+            id: secondReplyId,
+            username: 'john',
+            date: deletedReply.date,
+            content: '**balasan telah dihapus**',
+          }
+        ],
+      });
+
+      /// check the replies
+      expect(replies).toHaveLength(2);
+      expect(firstReply).toStrictEqual({
+        id: firstReplyId,
+        username: 'dicoding',
+        date: firstReply.date,
+        content: 'Una Respuesta',
+      });
+      expect(deletedReply).toStrictEqual({
+        id: secondReplyId,
+        username: 'john',
+        date: deletedReply.date,
+        content: '**balasan telah dihapus**',
       });
     });
 
