@@ -11,7 +11,7 @@ describe('DeleteCommentUseCase', () => {
     // Arrange
     const userId = 'user-123';
     const nonexistentThreadId = 'xxxxx';
-    const commentId = 'comment-xxx';
+    const nonexistentCommentId = 'comment-xxx';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -28,9 +28,11 @@ describe('DeleteCommentUseCase', () => {
     });
 
     // Action & Assert
-    await expect(deleteCommentUseCase.execute(userId, nonexistentThreadId, commentId))
+    await expect(deleteCommentUseCase.execute(userId, nonexistentThreadId, nonexistentCommentId))
       .rejects
       .toThrowError('thread tidak ditemukan');
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(nonexistentThreadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
   });
 
   it('should throw error if comment not exist', async () => {
@@ -59,6 +61,10 @@ describe('DeleteCommentUseCase', () => {
     await expect(deleteCommentUseCase.execute(userId, threadId, nonexistentCommentId))
       .rejects
       .toThrowError('comment tidak ditemukan');
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(nonexistentCommentId);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
   });
 
   it('should throw error if user not owns the comment', async () => {
@@ -91,6 +97,10 @@ describe('DeleteCommentUseCase', () => {
     await expect(deleteCommentUseCase.execute(unauthorizeUserId, threadId, commentId))
       .rejects
       .toThrowError('DELETE_COMMENT_USE_CASE.USER_NOT_AUTHORIZED');
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(commentId);
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
   });
 
   it('should orchestrating the delete comment action correctly', async () => {

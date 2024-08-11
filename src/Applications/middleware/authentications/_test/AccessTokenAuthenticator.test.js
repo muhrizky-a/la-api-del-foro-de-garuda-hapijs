@@ -27,6 +27,7 @@ describe('AccessTokenAuthenticator', () => {
   it('should throw error if access token fails to verify', async () => {
     // Arrange
     const useCasePayload = 'Bearer wrong_access_token';
+    const splittedAccessToken = 'wrong_access_token';
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     // Mocking
@@ -42,11 +43,16 @@ describe('AccessTokenAuthenticator', () => {
     await expect(accessTokenAuthenticator.execute(useCasePayload))
       .rejects
       .toThrowError('access token tidak valid');
+    expect(mockAuthenticationTokenManager.verifyAccessToken)
+      .toBeCalledWith(splittedAccessToken);
+    expect(mockAuthenticationTokenManager.verifyAccessToken)
+      .toBeCalledTimes(1);
   });
 
   it('should orchestrating the authentication of access token action correctly', async () => {
     // Arrange
-    const useCasePayload = 'access_token';
+    const useCasePayload = 'Bearer access_token';
+    const splittedAccessToken = 'access_token';
     const mockedDecodedAccessToken = {
       username: 'username',
       id: 'user-123',
@@ -70,8 +76,12 @@ describe('AccessTokenAuthenticator', () => {
     // Assert
     expect(credentials).toStrictEqual(mockedDecodedAccessToken);
     expect(mockAuthenticationTokenManager.verifyAccessToken)
-      .toHaveBeenCalledWith(useCasePayload);
+      .toHaveBeenCalledWith(splittedAccessToken);
+    expect(mockAuthenticationTokenManager.verifyAccessToken)
+      .toBeCalledTimes(1);
     expect(mockAuthenticationTokenManager.decodePayload)
-      .toHaveBeenCalledWith(useCasePayload);
+      .toHaveBeenCalledWith(splittedAccessToken);
+    expect(mockAuthenticationTokenManager.decodePayload)
+      .toBeCalledTimes(1);
   });
 });

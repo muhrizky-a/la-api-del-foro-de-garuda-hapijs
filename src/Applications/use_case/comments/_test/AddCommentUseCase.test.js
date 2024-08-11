@@ -29,6 +29,8 @@ describe('AddCommentUseCase', () => {
     await expect(addCommentUseCase.execute(null, nonexistentThreadId, {}))
       .rejects
       .toThrowError('thread tidak ditemukan');
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(nonexistentThreadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
   });
 
   it('should orchestrating the add comment action correctly', async () => {
@@ -36,16 +38,13 @@ describe('AddCommentUseCase', () => {
     const useCasePayload = {
       content: 'Un Comentario',
     };
+    const ownerId = 'user-123';
+    const threadId = 'thread-123';
     const mockNewComment = new NewComment({
       id: 'comment-123',
       content: 'Un Comentario',
       owner: 'user-123',
     });
-    // Credentials taken from decoded JWT
-    const mockCredentials = {
-      id: 'user-123',
-      username: 'dicoding',
-    };
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -66,8 +65,8 @@ describe('AddCommentUseCase', () => {
     // Action
     const newComment = await addCommentUseCase
       .execute(
-        mockCredentials.id,
-        'thread-123',
+        ownerId,
+        threadId,
         useCasePayload,
       );
 
@@ -78,15 +77,17 @@ describe('AddCommentUseCase', () => {
       owner: 'user-123',
     }));
 
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledTimes(1);
     expect(mockCommentRepository.addComment)
       .toBeCalledWith(
-        mockCredentials.id,
+        'user-123',
         'thread-123',
         new AddComment({
           content: 'Un Comentario',
         }),
       );
-
     expect(mockCommentRepository.addComment).toBeCalledTimes(1);
+
   });
 });

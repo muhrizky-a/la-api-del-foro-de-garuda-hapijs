@@ -76,7 +76,7 @@ describe('AddReplyUseCase', () => {
     // Arrange
     const threadId = 'thread-123';
     const commentId = 'comment-123';
-
+    const ownerId = 'user-123';
     const useCasePayload = {
       content: 'Una Respuesta',
     };
@@ -85,11 +85,6 @@ describe('AddReplyUseCase', () => {
       content: 'Una Respuesta',
       owner: 'user-123',
     });
-    // Credentials taken from decoded JWT
-    const mockCredentials = {
-      id: 'user-123',
-      username: 'dicoding',
-    };
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -114,7 +109,7 @@ describe('AddReplyUseCase', () => {
     // Action
     const newReply = await addReplyUseCase
       .execute(
-        mockCredentials.id,
+        ownerId,
         threadId,
         commentId,
         useCasePayload,
@@ -133,7 +128,7 @@ describe('AddReplyUseCase', () => {
     expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
     expect(mockReplyRepository.addReply)
       .toBeCalledWith(
-        mockCredentials.id,
+        ownerId,
         commentId,
         new AddReply({
           content: 'Una Respuesta',

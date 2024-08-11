@@ -18,11 +18,7 @@ describe('AddThreadUseCase', () => {
       title: 'Un Hilo',
       owner: 'user-123',
     });
-    // Credentials taken from decoded JWT
-    const mockCredentials = {
-      id: 'user-123',
-      username: 'dicoding',
-    };
+    const ownerId = 'user-123';
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
@@ -37,8 +33,7 @@ describe('AddThreadUseCase', () => {
     });
 
     // Action
-    const newThread = await addThreadUseCase
-      .execute(mockCredentials.id, useCasePayload);
+    const newThread = await addThreadUseCase.execute(ownerId, useCasePayload);
 
     // Assert
     expect(newThread).toStrictEqual(new NewThread({
@@ -49,7 +44,7 @@ describe('AddThreadUseCase', () => {
 
     expect(mockThreadRepository.addThread)
       .toBeCalledWith(
-        mockCredentials.id,
+        ownerId,
         new AddThread({
           title: 'Un Hilo',
           body: 'Un Contenido',

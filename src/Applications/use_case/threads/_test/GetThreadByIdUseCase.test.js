@@ -31,6 +31,8 @@ describe('GetThreadByIdUseCase', () => {
     await expect(getThreadByIdUseCase.execute(nonexistentThreadId))
       .rejects
       .toThrowError('thread tidak ditemukan');
+    expect(mockThreadRepository.getThreadById).toBeCalledWith(nonexistentThreadId);
+    expect(mockThreadRepository.getThreadById).toBeCalledTimes(1);
   });
 
   it('should orchestrating the get thread action correctly', async () => {
@@ -82,6 +84,8 @@ describe('GetThreadByIdUseCase', () => {
       is_delete: true,
     });
     mockComment1.replies = [mockReply1ofComment1, mockReply2ofComment1];
+    mockComment2.replies = [];
+    mockComment3.replies = [];
 
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
