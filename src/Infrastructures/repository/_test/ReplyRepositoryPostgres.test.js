@@ -190,16 +190,6 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('deleteReply function', () => {
-    it('should throw NotFoundError when reply not available', async () => {
-      // Arrange
-      const nonexistentReplyId = 'reply-xxxxx';
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(replyRepositoryPostgres.deleteReply(nonexistentReplyId))
-        .rejects.toThrowError(NotFoundError);
-    });
-
     it('should delete a reply from database', async () => {
       // Arrange
       const replyId = 'reply-123'; // stub reply id
@@ -218,7 +208,25 @@ describe('ReplyRepositoryPostgres', () => {
 
       // Assert
       const replies = await RepliesTableTestHelper.findRepliesById(replyId);
-      expect(replies).toHaveLength(0);
+      const [deletedReply] = replies;
+
+      expect(replies).toHaveLength(1);
+      expect(replies).toContainEqual({
+        id: 'reply-123',
+        comment_id: 'comment-123',
+        owner: 'user-123',
+        date: deletedReply.date,
+        content: 'Una Respuesta',
+        is_delete: true,
+      });
+      expect(deletedReply).toStrictEqual({
+        id: 'reply-123',
+        comment_id: 'comment-123',
+        owner: 'user-123',
+        date: deletedReply.date,
+        content: 'Una Respuesta',
+        is_delete: true,
+      });
     });
   });
 });
