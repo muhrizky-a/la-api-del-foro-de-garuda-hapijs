@@ -182,16 +182,6 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('deleteComment function', () => {
-    it('should throw NotFoundError when comment not available', async () => {
-      // Arrange
-      const nonexistentCommentId = 'comment-xxxxx';
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(commentRepositoryPostgres.deleteComment(nonexistentCommentId))
-        .rejects.toThrowError(NotFoundError);
-    });
-
     it('should delete a comment from database', async () => {
       // Arrange
       const commentId = 'comment-123'; // stub comment id
@@ -208,7 +198,25 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       const comments = await CommentsTableTestHelper.findCommentsById(commentId);
-      expect(comments).toHaveLength(0);
+      const [deletedComment] = comments;
+
+      expect(comments).toHaveLength(1);
+      expect(comments).toContainEqual({
+        id: 'comment-123',
+        owner: 'user-123',
+        thread_id: 'thread-123',
+        date: deletedComment.date,
+        content: 'Un Comentario',
+        is_delete: true,
+      });
+      expect(deletedComment).toStrictEqual({
+        id: 'comment-123',
+        owner: 'user-123',
+        thread_id: 'thread-123',
+        date: deletedComment.date,
+        content: 'Un Comentario',
+        is_delete: true,
+      });
     });
   });
 });
