@@ -88,6 +88,5 @@ describe('AddCommentUseCase', () => {
         }),
       );
     expect(mockCommentRepository.addComment).toBeCalledTimes(1);
-
   });
 });

@@ -64,7 +64,11 @@ describe('ReplyRepositoryPostgres', () => {
       await CommentsTableTestHelper.addComment({}); // memasukan comment baru dengan data default
 
       // Action
-      const newReply = await replyRepositoryPostgres.addReply(fakeReplyOwnerId, commentId, addComment);
+      const newReply = await replyRepositoryPostgres.addReply(
+        fakeReplyOwnerId,
+        commentId,
+        addComment,
+      );
 
       // Assert
       expect(newReply).toStrictEqual(new NewReply({

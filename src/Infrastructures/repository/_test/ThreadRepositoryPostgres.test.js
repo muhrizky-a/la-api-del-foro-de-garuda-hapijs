@@ -76,7 +76,7 @@ describe('ThreadRepositoryPostgres', () => {
 
     it('should return thread correctly', async () => {
       // Arrange
-      const threadId = 'thread-123'
+      const threadId = 'thread-123';
       /// memasukan user baru dengan data default (id: user-123)
       await UsersTableTestHelper.addUser({});
       /// memasukan thread baru dengan data default (ownerId: user-123)

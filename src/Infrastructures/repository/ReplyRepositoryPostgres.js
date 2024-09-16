@@ -22,7 +22,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     const result = await this._pool.query(query);
 
-    return new NewReply({ ...result.rows[0] });
+    return new NewReply(result.rows[0]);
   }
 
   async getRepliesByCommentId(commentId) {
@@ -57,7 +57,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       throw new NotFoundError('balasan tidak ditemukan');
     }
 
-    return new ExistingReply({ ...result.rows[0] });
+    return new ExistingReply(result.rows[0]);
   }
 
   async deleteReply(id) {

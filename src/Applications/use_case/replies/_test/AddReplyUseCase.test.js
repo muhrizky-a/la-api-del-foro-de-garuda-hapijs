@@ -30,7 +30,7 @@ describe('AddReplyUseCase', () => {
 
     // Action & Assert
     await expect(
-      addReplyUseCase.execute(null, nonexistentThreadId, {}, {})
+      addReplyUseCase.execute(null, nonexistentThreadId, {}, {}),
     ).rejects
       .toThrowError('thread tidak ditemukan');
 
@@ -62,7 +62,7 @@ describe('AddReplyUseCase', () => {
 
     // Action & Assert
     await expect(
-      addReplyUseCase.execute(null, threadId, nonexistentCommentId, {})
+      addReplyUseCase.execute(null, threadId, nonexistentCommentId, {}),
     ).rejects
       .toThrowError('comment tidak ditemukan');
 

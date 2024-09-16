@@ -46,7 +46,8 @@
         },
         {
             "files": [
-                "./src/Applications/use_case/**/*.js"
+                "./src/Applications/use_case/**/*.js",
+                "./src/Applications/middleware/**/*.js"
             ],
             "rules": {
                 "class-methods-use-this": "off"

@@ -1,7 +1,5 @@
 const DomainErrorTranslator = require('../DomainErrorTranslator');
 const InvariantError = require('../InvariantError');
-const AuthenticationError = require('../AuthenticationError');
-const AuthorizationError = require('../AuthorizationError');
 
 describe('DomainErrorTranslator', () => {
   it('should translate error correctly', () => {

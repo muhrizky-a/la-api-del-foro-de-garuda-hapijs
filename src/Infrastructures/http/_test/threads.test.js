@@ -387,7 +387,7 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       /// get the sole comment
       const comment = [...responseJson.data.thread.comments].pop();
-      const replies = comment.replies;
+      const { replies } = comment;
       const [firstReply, deletedReply] = replies;
 
       expect(response.statusCode).toEqual(200);
@@ -414,7 +414,7 @@ describe('/threads endpoint', () => {
             username: 'john',
             date: deletedReply.date,
             content: '**balasan telah dihapus**',
-          }
+          },
         ],
       });
 

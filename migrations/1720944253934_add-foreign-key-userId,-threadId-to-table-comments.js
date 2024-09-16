@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 exports.up = (pgm) => {
   // memberikan constraint foreign key pada kolom owner dan thread_id
   // terhadap users.id dan threads.id

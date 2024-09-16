@@ -9,8 +9,9 @@ class GetThreadByIdUseCase {
     const thread = await this._threadRepository.getThreadById(threadId);
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
 
-    const repliesPromises = comments.map(async comment => {
+    const repliesPromises = comments.map(async (comment) => {
       const replies = await this._replyRepository.getRepliesByCommentId(comment.id);
+      // return { ...comment, replies };
       comment.replies = replies;
       return comment;
     });

@@ -26,12 +26,17 @@ describe('DeleteReplyUseCase', () => {
     const deleteReplyUseCase = new DeleteReplyUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: {},
-      replyRepository: {}
+      replyRepository: {},
     });
 
     // Action & Assert
     await expect(
-      deleteReplyUseCase.execute(userId, nonexistentThreadId, nonexistentCommentId, nonexistentReplyId)
+      deleteReplyUseCase.execute(
+        userId,
+        nonexistentThreadId,
+        nonexistentCommentId,
+        nonexistentReplyId,
+      ),
     ).rejects
       .toThrowError('thread tidak ditemukan');
 
@@ -60,12 +65,12 @@ describe('DeleteReplyUseCase', () => {
     const deleteReplyUseCase = new DeleteReplyUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
-      replyRepository: {}
+      replyRepository: {},
     });
 
     // Action & Assert
     await expect(
-      deleteReplyUseCase.execute(userId, threadId, nonexistentCommentId, nonexistentReplyId)
+      deleteReplyUseCase.execute(userId, threadId, nonexistentCommentId, nonexistentReplyId),
     ).rejects
       .toThrowError('comment tidak ditemukan');
 
@@ -104,7 +109,7 @@ describe('DeleteReplyUseCase', () => {
 
     // Action & Assert
     await expect(
-      deleteReplyUseCase.execute(userId, threadId, commentId, nonexistentReplyId)
+      deleteReplyUseCase.execute(userId, threadId, commentId, nonexistentReplyId),
     ).rejects
       .toThrowError('balasan tidak ditemukan');
 

@@ -22,7 +22,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return new NewComment({ ...result.rows[0] });
+    return new NewComment(result.rows[0]);
   }
 
   async getCommentsByThreadId(threadId) {
@@ -57,7 +57,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new NotFoundError('comment tidak ditemukan');
     }
 
-    return new ExistingComment({ ...result.rows[0] });
+    return new ExistingComment(result.rows[0]);
   }
 
   async deleteComment(id) {
