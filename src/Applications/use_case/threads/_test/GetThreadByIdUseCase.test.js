@@ -18,8 +18,7 @@ describe('GetThreadByIdUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     // Mocking
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.reject(new Error('thread tidak ditemukan')));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.reject(new Error('thread tidak ditemukan')));
 
     // create use case instance
     const getThreadByIdUseCase = new GetThreadByIdUseCase({
@@ -87,14 +86,23 @@ describe('GetThreadByIdUseCase', () => {
     mockComment2.replies = [];
     mockComment3.replies = [];
 
+    const expectedThread = {
+      ...mockThread,
+      comments: [
+        mockComment1,
+        mockComment2,
+        mockComment3,
+      ],
+    };
+
     // create dependency of use case
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
 
     // Mocking
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(
+    mockThreadRepository.getThreadById = jest.fn(
+      () => Promise.resolve(
         new Thread({
           id: threadId,
           title: 'Un Hilo',
@@ -102,11 +110,12 @@ describe('GetThreadByIdUseCase', () => {
           date: new Date('2021-08-08T07:26:21.338Z'),
           username: 'dicoding',
         }),
-      ));
+      ),
+    );
 
     /// mocking comment with reply, comment without reply, and deleted comment
-    mockCommentRepository.getCommentsByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(
+    mockCommentRepository.getCommentsByThreadId = jest.fn(
+      () => Promise.resolve(
         [
           new Comment({
             id: 'comment-123',
@@ -133,7 +142,8 @@ describe('GetThreadByIdUseCase', () => {
             is_delete: true,
           }),
         ],
-      ));
+      ),
+    );
     mockReplyRepository.getRepliesByCommentId = jest.fn()
       .mockImplementationOnce(() => Promise.resolve(
         [
@@ -170,11 +180,7 @@ describe('GetThreadByIdUseCase', () => {
     const [firstReply, deletedReply] = commentWithReply.replies;
 
     // Assert
-    expect(thread.id).toStrictEqual(mockThread.id);
-    expect(thread.title).toStrictEqual(mockThread.title);
-    expect(thread.body).toStrictEqual(mockThread.body);
-    expect(thread.date).toStrictEqual(mockThread.date);
-    expect(thread.username).toStrictEqual(mockThread.username);
+    expect(thread).toStrictEqual(expectedThread);
 
     expect(comments).toContainEqual(mockComment1);
     expect(commentWithReply).toStrictEqual(mockComment1);

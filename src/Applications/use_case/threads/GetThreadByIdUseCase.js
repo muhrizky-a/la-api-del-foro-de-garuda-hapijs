@@ -9,14 +9,14 @@ class GetThreadByIdUseCase {
     const thread = await this._threadRepository.getThreadById(threadId);
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
 
-    const repliesPromises = comments.map(async (comment) => {
-      const replies = await this._replyRepository.getRepliesByCommentId(comment.id);
-      // return { ...comment, replies };
-      comment.replies = replies;
-      return comment;
-    });
+    const commentIds = comments.map((comment) => comment.id);
+    const repliesPromises = commentIds.map((id) => this._replyRepository.getRepliesByCommentId(id));
+    const repliesResults = await Promise.all(repliesPromises);
 
-    await Promise.all(repliesPromises);
+    // Map replies back to comments
+    comments.forEach((comment) => {
+      comment.replies = repliesResults[commentIds.indexOf(comment.id)];
+    });
 
     return {
       ...thread,

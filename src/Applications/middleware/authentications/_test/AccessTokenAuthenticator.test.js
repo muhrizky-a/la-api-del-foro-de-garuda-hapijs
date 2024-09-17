@@ -31,8 +31,7 @@ describe('AccessTokenAuthenticator', () => {
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     // Mocking
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.reject(new Error('access token tidak valid')));
+    mockAuthenticationTokenManager.verifyAccessToken = jest.fn(() => Promise.reject(new Error('access token tidak valid')));
 
     // create use case instance
     const accessTokenAuthenticator = new AccessTokenAuthenticator({
@@ -60,10 +59,10 @@ describe('AccessTokenAuthenticator', () => {
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     // Mocking
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockedDecodedAccessToken));
+    mockAuthenticationTokenManager.verifyAccessToken = jest.fn(() => Promise.resolve());
+    mockAuthenticationTokenManager.decodePayload = jest.fn(
+      () => Promise.resolve(mockedDecodedAccessToken),
+    );
 
     // create use case instance
     const accessTokenAuthenticator = new AccessTokenAuthenticator({
