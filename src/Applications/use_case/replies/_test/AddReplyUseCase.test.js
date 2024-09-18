@@ -18,8 +18,7 @@ describe('AddReplyUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     // Mocking
-    mockThreadRepository.verifyThreadExists = jest.fn()
-      .mockImplementation(() => Promise.reject(new Error('thread tidak ditemukan')));
+    mockThreadRepository.verifyThreadExists = jest.fn(() => Promise.reject(new Error('thread tidak ditemukan')));
 
     // create use case instance
     const addReplyUseCase = new AddReplyUseCase({
@@ -48,10 +47,8 @@ describe('AddReplyUseCase', () => {
     const mockCommentRepository = new CommentRepository();
 
     // Mocking
-    mockThreadRepository.verifyThreadExists = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.verifyCommentExists = jest.fn()
-      .mockImplementation(() => Promise.reject(new Error('comment tidak ditemukan')));
+    mockThreadRepository.verifyThreadExists = jest.fn(() => Promise.resolve());
+    mockCommentRepository.verifyCommentExists = jest.fn(() => Promise.reject(new Error('comment tidak ditemukan')));
 
     // create use case instance
     const addReplyUseCase = new AddReplyUseCase({
@@ -92,12 +89,9 @@ describe('AddReplyUseCase', () => {
     const mockReplyRepository = new ReplyRepository();
 
     // Mocking
-    mockThreadRepository.verifyThreadExists = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.verifyCommentExists = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockReplyRepository.addReply = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockNewReply));
+    mockThreadRepository.verifyThreadExists = jest.fn(() => Promise.resolve());
+    mockCommentRepository.verifyCommentExists = jest.fn(() => Promise.resolve());
+    mockReplyRepository.addReply = jest.fn(() => Promise.resolve(mockNewReply));
 
     // create use case instance
     const addReplyUseCase = new AddReplyUseCase({
