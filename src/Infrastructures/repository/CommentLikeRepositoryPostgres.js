@@ -1,4 +1,5 @@
 const ExistingLike = require('../../Domains/comment_likes/entities/ExistingLike');
+const Like = require('../../Domains/comment_likes/entities/Like');
 const CommentLikeRepository = require('../../Domains/comment_likes/CommentLikeRepository');
 
 class CommentLikeRepositoryPostgres extends CommentLikeRepository {
@@ -17,6 +18,18 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
     };
 
     await this._pool.query(query);
+  }
+
+  async getLikeCount(commentId) {
+    const query = {
+      text: `SELECT COUNT(*)
+      FROM comment_likes
+      WHERE comment_id = $1`,
+      values: [commentId],
+    };
+    const result = await this._pool.query(query);
+
+    return new Like(result.rows[0]);
   }
 
   async verifyLikeExists(userId, commentId) {

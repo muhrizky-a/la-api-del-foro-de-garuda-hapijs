@@ -3,6 +3,7 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const CommentLikesTableTestHelper = require('../../../../tests/CommentLikesTableTestHelper');
 const ExistingLike = require('../../../Domains/comment_likes/entities/ExistingLike');
+const Like = require('../../../Domains/comment_likes/entities/Like');
 const pool = require('../../database/postgres/pool');
 const CommentLikeRepositoryPostgres = require('../CommentLikeRepositoryPostgres');
 
@@ -53,8 +54,50 @@ describe('CommentLikeRepositoryPostgres', () => {
         comment_id: 'comment-123',
         date: like.date,
       });
-
     });
+  });
+
+  describe('getLikeCount function', () => {
+    it('should return 0 when comment not found', async () => {
+      // Arrange
+      const nonexistentCommentId = 'comment-xxxxx';
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
+
+      // Action
+      const result = await commentLikeRepositoryPostgres.getLikeCount(nonexistentCommentId);
+
+      // Assert
+      expect(result).toStrictEqual(
+        new Like({ count: '0' }),
+      );
+      expect(result.count).toStrictEqual(0);
+    });
+
+    it('should return 1 like count', async () => {
+      // Arrange
+      const fakeUserId = 'user-123'; // stub user id
+      const commentId = 'comment-123'; // stub comment id
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
+      await UsersTableTestHelper.addUser({}); // memasukan user baru dengan data default
+      await ThreadsTableTestHelper.addThread({}); // memasukan thread baru dengan data default
+      await CommentsTableTestHelper.addComment({}); // memasukan comment baru dengan data default
+      await commentLikeRepositoryPostgres.addLike(fakeUserId, commentId);
+
+      // Action
+      const result = await commentLikeRepositoryPostgres.getLikeCount(commentId);
+
+      // Assert
+      expect(result).toStrictEqual(
+        new Like({ count: '1' }),
+      );
+      expect(result.count).toStrictEqual(1);
+    });
+
   });
 
   describe('verifyLikeExists function', () => {
