@@ -1,7 +1,7 @@
-const Like = require('../../../Domains/comment_likes/entities/Like');
-
 class GetThreadByIdUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository, commentLikeRepository }) {
+  constructor({
+    threadRepository, commentRepository, replyRepository, commentLikeRepository,
+  }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;

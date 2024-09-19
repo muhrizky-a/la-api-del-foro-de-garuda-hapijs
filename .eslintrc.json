@@ -52,6 +52,14 @@
             "rules": {
                 "class-methods-use-this": "off"
             }
+        },
+        {
+            "files": [
+                "./src/Applications/use_case/threads/GetThreadByIdUseCase.js"
+            ],
+            "rules": {
+                "no-param-reassign": "off"
+            }
         }
     ]
 }

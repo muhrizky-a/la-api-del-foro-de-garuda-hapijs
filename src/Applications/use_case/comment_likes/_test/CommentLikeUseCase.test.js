@@ -35,7 +35,7 @@ describe('CommentLikeUseCase', () => {
         userId,
         nonexistentThreadId,
         nonexistentCommentId,
-      )
+      ),
     ).rejects
       .toThrowError('thread tidak ditemukan');
     expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(nonexistentThreadId);
@@ -70,7 +70,7 @@ describe('CommentLikeUseCase', () => {
         userId,
         threadId,
         nonexistentCommentId,
-      )
+      ),
     ).rejects
       .toThrowError('comment tidak ditemukan');
     expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(threadId);
@@ -78,7 +78,6 @@ describe('CommentLikeUseCase', () => {
     expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(nonexistentCommentId);
     expect(mockCommentRepository.verifyCommentExists).toBeCalledTimes(1);
   });
-
 
   it('should orchestrating the like comment action correctly', async () => {
     // Arrange
@@ -95,7 +94,9 @@ describe('CommentLikeUseCase', () => {
     // Mocking
     mockThreadRepository.verifyThreadExists = jest.fn(() => Promise.resolve());
     mockCommentRepository.verifyCommentExists = jest.fn(() => Promise.resolve());
-    mockCommentLikeRepository.verifyLikeExists = jest.fn(() => Promise.resolve(mockNonexistentLike));
+    mockCommentLikeRepository.verifyLikeExists = jest.fn(
+      () => Promise.resolve(mockNonexistentLike),
+    );
     mockCommentLikeRepository.addLike = jest.fn(() => Promise.resolve());
 
     // create use case instance

@@ -16,7 +16,7 @@ class Like {
       throw new Error('LIKE.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
-    if (isNaN(parseInt(count, 10))) {
+    if (Number.isNaN(parseInt(count, 10))) {
       throw new Error('LIKE.FAILED_TO_PARSE_DATA');
     }
   }

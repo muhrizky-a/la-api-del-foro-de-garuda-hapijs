@@ -38,7 +38,10 @@ describe('CommentLikeRepositoryPostgres', () => {
       await commentLikeRepositoryPostgres.addLike(fakeUserId, commentId);
 
       // Assert
-      const likes = await CommentLikesTableTestHelper.findLikeByUserIdAndCommentId(fakeUserId, commentId);
+      const likes = await CommentLikesTableTestHelper.findLikeByUserIdAndCommentId(
+        fakeUserId,
+        commentId,
+      );
       const [like] = likes;
 
       expect(likes).toHaveLength(1);
@@ -97,7 +100,6 @@ describe('CommentLikeRepositoryPostgres', () => {
       );
       expect(result.count).toStrictEqual(1);
     });
-
   });
 
   describe('verifyLikeExists function', () => {
@@ -108,7 +110,10 @@ describe('CommentLikeRepositoryPostgres', () => {
       const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       // Action
-      const result = await commentLikeRepositoryPostgres.verifyLikeExists(nonexistentUserId, commentId);
+      const result = await commentLikeRepositoryPostgres.verifyLikeExists(
+        nonexistentUserId,
+        commentId,
+      );
 
       // Assert
       expect(result).toStrictEqual(null);
@@ -121,7 +126,10 @@ describe('CommentLikeRepositoryPostgres', () => {
       const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       // Action
-      const result = await commentLikeRepositoryPostgres.verifyLikeExists(userId, nonexistentCommentId);
+      const result = await commentLikeRepositoryPostgres.verifyLikeExists(
+        userId,
+        nonexistentCommentId,
+      );
 
       // Assert
       expect(result).toStrictEqual(null);
@@ -142,7 +150,10 @@ describe('CommentLikeRepositoryPostgres', () => {
       await CommentLikesTableTestHelper.addLike({});
 
       // Action
-      const result = await commentLikeRepositoryPostgres.verifyLikeExists(userId, commentId);
+      const result = await commentLikeRepositoryPostgres.verifyLikeExists(
+        userId,
+        commentId,
+      );
 
       // Assert
       expect(result).toStrictEqual(
@@ -172,9 +183,11 @@ describe('CommentLikeRepositoryPostgres', () => {
       // Action
       await commentLikeRepositoryPostgres.deleteLike(likeId);
 
-
       // Assert
-      const likes = await CommentLikesTableTestHelper.findLikeByUserIdAndCommentId(userId, commentId);
+      const likes = await CommentLikesTableTestHelper.findLikeByUserIdAndCommentId(
+        userId,
+        commentId,
+      );
       expect(likes).toHaveLength(0);
     });
   });

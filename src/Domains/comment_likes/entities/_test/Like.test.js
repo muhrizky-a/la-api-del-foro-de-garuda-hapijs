@@ -22,7 +22,7 @@ describe('Like entities', () => {
   it('should throw error when payload fail to parse to int', () => {
     // Arrange
     const payload = {
-      count: "word",
+      count: 'word',
     };
 
     // Action & Assert

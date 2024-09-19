@@ -41,7 +41,7 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      return null
+      return null;
     }
 
     return new ExistingLike(result.rows[0]);

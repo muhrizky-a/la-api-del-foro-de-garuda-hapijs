@@ -458,159 +458,163 @@ describe('/threads endpoint', () => {
 
     it(`should response 200 and return thread with 3 comments,
       with each 2 likes, 1 like, and 1 like from deleted comment`,
-      async () => {
-        // Arrange
-        const addThreadRequestPayload = {
-          title: 'Un Hilo',
-          body: 'Un Contenido',
-        };
-        const server = await createServer(container);
-        /// add user dicoding
-        await _addUser({ server });
-        /// add user john
-        await _addUser({
-          server,
-          username: 'john',
-          fullname: 'John Rambo',
-        });
-        /// login user dicoding
-        const loginResponseDicoding = await _login({ server });
-        const {
-          data: { accessToken: accessTokenDicoding },
-        } = JSON.parse(loginResponseDicoding.payload);
+    async () => {
+      // Arrange
+      const addThreadRequestPayload = {
+        title: 'Un Hilo',
+        body: 'Un Contenido',
+      };
+      const server = await createServer(container);
+      /// add user dicoding
+      await _addUser({ server });
+      /// add user john
+      await _addUser({
+        server,
+        username: 'john',
+        fullname: 'John Rambo',
+      });
+      /// login user dicoding
+      const loginResponseDicoding = await _login({ server });
+      const {
+        data: { accessToken: accessTokenDicoding },
+      } = JSON.parse(loginResponseDicoding.payload);
         /// login user john
-        const loginResponseJohn = await _login({
-          server,
-          username: 'john',
-        });
-        const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
-        /// add new thread (dicoding)
-        const addThreadResponse = await _addThread({
-          server,
-          requestPayload: addThreadRequestPayload,
-          accessToken: accessTokenDicoding,
-        });
-        const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+      const loginResponseJohn = await _login({
+        server,
+        username: 'john',
+      });
+      const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
+      /// add new thread (dicoding)
+      const addThreadResponse = await _addThread({
+        server,
+        requestPayload: addThreadRequestPayload,
+        accessToken: accessTokenDicoding,
+      });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
 
-        /// add new (two) comments
-        const addFirstCommentResponse = await _addComment({
-          server,
-          threadId,
-          accessToken: accessTokenDicoding,
-        });
-        const firstCommentId = JSON.parse(addFirstCommentResponse.payload).data.addedComment.id;
+      /// add new (two) comments
+      const addFirstCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenDicoding,
+      });
+      const firstCommentId = JSON.parse(addFirstCommentResponse.payload).data.addedComment.id;
 
-        const addSecondCommentResponse = await _addComment({
-          server,
-          threadId,
-          accessToken: accessTokenJohn,
-        });
-        const secondCommentId = JSON.parse(addSecondCommentResponse.payload).data.addedComment.id;
+      const addSecondCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenJohn,
+      });
+      const secondCommentId = JSON.parse(addSecondCommentResponse.payload).data.addedComment.id;
 
-        const addThirdCommentResponse = await _addComment({
-          server,
-          threadId,
-          accessToken: accessTokenJohn,
-        });
-        const thirdComentId = JSON.parse(addThirdCommentResponse.payload).data.addedComment.id;
+      const addThirdCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenJohn,
+      });
+      const thirdComentId = JSON.parse(addThirdCommentResponse.payload).data.addedComment.id;
 
-        /// like dicoding comment (dicoding, john)
-        await _likeComment({
-          server,
-          threadId,
-          commentId: firstCommentId,
-          accessToken: accessTokenDicoding,
-        });
-        await _likeComment({
-          server,
-          threadId,
-          commentId: firstCommentId,
-          accessToken: accessTokenJohn,
-        });
+      /// like dicoding comment (dicoding, john)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: firstCommentId,
+        accessToken: accessTokenDicoding,
+      });
+      await _likeComment({
+        server,
+        threadId,
+        commentId: firstCommentId,
+        accessToken: accessTokenJohn,
+      });
 
-        /// like john comment (dicoding, john)
-        await _likeComment({
-          server,
-          threadId,
-          commentId: secondCommentId,
-          accessToken: accessTokenDicoding,
-        });
-        await _likeComment({
-          server,
-          threadId,
-          commentId: secondCommentId,
-          accessToken: accessTokenJohn,
-        });
-        /// unlike john comment (dicoding)
-        await _likeComment({
-          server,
-          threadId,
-          commentId: secondCommentId,
-          accessToken: accessTokenDicoding,
-        });
+      /// like john comment (dicoding, john)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenDicoding,
+      });
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenJohn,
+      });
+      /// unlike john comment (dicoding)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenDicoding,
+      });
 
-        /// like, unlike, like again second john comment (dicoding)
-        const likeTimes = 3
-        for (let i = 1; i <= likeTimes; i++) {
-          await _likeComment({
+      /// like, unlike, like again second john comment (dicoding)
+      const likeTimes = 3;
+      const likesPromises = []; // Array to hold the promises
+      for (let i = 1; i <= likeTimes; i += 1) {
+        likesPromises.push(
+          _likeComment({
             server,
             threadId,
             commentId: thirdComentId,
             accessToken: accessTokenDicoding,
-          });
-        }
+          }),
+        );
+      }
+      await Promise.all(likesPromises);
 
-        // delete second john comment (john)
-        await server.inject({
-          method: 'DELETE',
-          url: `/threads/${threadId}/comments/${thirdComentId}`,
-          headers: {
-            authorization: `Bearer ${accessTokenJohn}`,
-          },
-        });
-
-        // Action
-        const response = await server.inject({
-          method: 'GET',
-          url: `/threads/${threadId}`,
-        });
-
-        // Assert
-        const responseJson = JSON.parse(response.payload);
-        const [firstComment, secondComment, deletedComment] = responseJson.data.thread.comments;
-
-        expect(response.statusCode).toEqual(200);
-        expect(responseJson.status).toEqual('success');
-        expect(responseJson.data.thread).toBeDefined();
-        expect(responseJson.data.thread.comments).toBeDefined();
-        expect(responseJson.data.thread.comments).toHaveLength(3);
-
-        /// check the comments
-        expect(firstComment).toStrictEqual({
-          id: firstCommentId,
-          username: 'dicoding',
-          date: firstComment.date,
-          content: 'Un Comentario',
-          replies: [],
-          likeCount: 2,
-        });
-        expect(secondComment).toStrictEqual({
-          id: secondCommentId,
-          username: 'john',
-          date: secondComment.date,
-          content: 'Un Comentario',
-          replies: [],
-          likeCount: 1,
-        });
-        expect(deletedComment).toStrictEqual({
-          id: thirdComentId,
-          username: 'john',
-          date: deletedComment.date,
-          content: '**komentar telah dihapus**',
-          replies: [],
-          likeCount: 1,
-        });
+      // delete second john comment (john)
+      await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${thirdComentId}`,
+        headers: {
+          authorization: `Bearer ${accessTokenJohn}`,
+        },
       });
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      const [firstComment, secondComment, deletedComment] = responseJson.data.thread.comments;
+
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+      expect(responseJson.data.thread.comments).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(3);
+
+      /// check the comments
+      expect(firstComment).toStrictEqual({
+        id: firstCommentId,
+        username: 'dicoding',
+        date: firstComment.date,
+        content: 'Un Comentario',
+        replies: [],
+        likeCount: 2,
+      });
+      expect(secondComment).toStrictEqual({
+        id: secondCommentId,
+        username: 'john',
+        date: secondComment.date,
+        content: 'Un Comentario',
+        replies: [],
+        likeCount: 1,
+      });
+      expect(deletedComment).toStrictEqual({
+        id: thirdComentId,
+        username: 'john',
+        date: deletedComment.date,
+        content: '**komentar telah dihapus**',
+        replies: [],
+        likeCount: 1,
+      });
+    });
 
     it('should response 404 when thread not exists', async () => {
       // Arrange

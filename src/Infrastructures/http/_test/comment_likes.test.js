@@ -64,7 +64,6 @@ describe('/threads/:threadId/comments/:commentId/likes endpoint', () => {
     },
   });
 
-
   describe('when PUT /threads/:threadId/comments/:commentId/likes', () => {
     it('should response 200 if like comment succesfully', async () => {
       // Arrange
@@ -188,7 +187,7 @@ describe('/threads/:threadId/comments/:commentId/likes endpoint', () => {
       expect(responseJson.status).toEqual('success');
     });
 
-    it('should response 200 if john like comment made by dicoding', async () => {
+    it('should response 200 if john unlike comment made by dicoding', async () => {
       // Arrange
       const server = await createServer(container);
       /// add user
