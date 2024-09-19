@@ -2,6 +2,9 @@ const pool = require('../../database/postgres/pool');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
+const CommentLikesTableTestHelper = require('../../../../tests/CommentLikesTableTestHelper');
 const { _addUser, _login } = require('../../../../tests/functionalTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -12,6 +15,9 @@ describe('/threads endpoint', () => {
   });
 
   afterEach(async () => {
+    await CommentLikesTableTestHelper.cleanTable();
+    await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
@@ -52,6 +58,19 @@ describe('/threads endpoint', () => {
     payload: {
       content: 'Una Respuesta',
     },
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const _likeComment = async ({
+    server,
+    threadId,
+    commentId,
+    accessToken,
+  }) => server.inject({
+    method: 'PUT',
+    url: `/threads/${threadId}/comments/${commentId}/likes`,
     headers: {
       authorization: `Bearer ${accessToken}`,
     },
@@ -300,6 +319,7 @@ describe('/threads endpoint', () => {
         date: firstComment.date,
         content: 'Un Comentario',
         replies: [],
+        likeCount: 0,
       });
       expect(deletedComment).toStrictEqual({
         id: secondCommentId,
@@ -307,6 +327,7 @@ describe('/threads endpoint', () => {
         date: deletedComment.date,
         content: '**komentar telah dihapus**',
         replies: [],
+        likeCount: 0,
       });
     });
 
@@ -416,6 +437,7 @@ describe('/threads endpoint', () => {
             content: '**balasan telah dihapus**',
           },
         ],
+        likeCount: 0,
       });
 
       /// check the replies
@@ -431,6 +453,166 @@ describe('/threads endpoint', () => {
         username: 'john',
         date: deletedReply.date,
         content: '**balasan telah dihapus**',
+      });
+    });
+
+    it(`should response 200 and return thread with 3 comments,
+      with each 2 likes, 1 like, and 1 like from deleted comment`,
+    async () => {
+      // Arrange
+      const addThreadRequestPayload = {
+        title: 'Un Hilo',
+        body: 'Un Contenido',
+      };
+      const server = await createServer(container);
+      /// add user dicoding
+      await _addUser({ server });
+      /// add user john
+      await _addUser({
+        server,
+        username: 'john',
+        fullname: 'John Rambo',
+      });
+      /// login user dicoding
+      const loginResponseDicoding = await _login({ server });
+      const {
+        data: { accessToken: accessTokenDicoding },
+      } = JSON.parse(loginResponseDicoding.payload);
+        /// login user john
+      const loginResponseJohn = await _login({
+        server,
+        username: 'john',
+      });
+      const { data: { accessToken: accessTokenJohn } } = JSON.parse(loginResponseJohn.payload);
+      /// add new thread (dicoding)
+      const addThreadResponse = await _addThread({
+        server,
+        requestPayload: addThreadRequestPayload,
+        accessToken: accessTokenDicoding,
+      });
+      const threadId = JSON.parse(addThreadResponse.payload).data.addedThread.id;
+
+      /// add new (two) comments
+      const addFirstCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenDicoding,
+      });
+      const firstCommentId = JSON.parse(addFirstCommentResponse.payload).data.addedComment.id;
+
+      const addSecondCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenJohn,
+      });
+      const secondCommentId = JSON.parse(addSecondCommentResponse.payload).data.addedComment.id;
+
+      const addThirdCommentResponse = await _addComment({
+        server,
+        threadId,
+        accessToken: accessTokenJohn,
+      });
+      const thirdComentId = JSON.parse(addThirdCommentResponse.payload).data.addedComment.id;
+
+      /// like dicoding comment (dicoding, john)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: firstCommentId,
+        accessToken: accessTokenDicoding,
+      });
+      await _likeComment({
+        server,
+        threadId,
+        commentId: firstCommentId,
+        accessToken: accessTokenJohn,
+      });
+
+      /// like john comment (dicoding, john)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenDicoding,
+      });
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenJohn,
+      });
+      /// unlike john comment (dicoding)
+      await _likeComment({
+        server,
+        threadId,
+        commentId: secondCommentId,
+        accessToken: accessTokenDicoding,
+      });
+
+      /// like, unlike, like again second john comment (dicoding)
+      const likeTimes = 3;
+      const likesPromises = []; // Array to hold the promises
+      for (let i = 1; i <= likeTimes; i += 1) {
+        likesPromises.push(
+          _likeComment({
+            server,
+            threadId,
+            commentId: thirdComentId,
+            accessToken: accessTokenDicoding,
+          }),
+        );
+      }
+      await Promise.all(likesPromises);
+
+      // delete second john comment (john)
+      await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${thirdComentId}`,
+        headers: {
+          authorization: `Bearer ${accessTokenJohn}`,
+        },
+      });
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      const [firstComment, secondComment, deletedComment] = responseJson.data.thread.comments;
+
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+      expect(responseJson.data.thread.comments).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(3);
+
+      /// check the comments
+      expect(firstComment).toStrictEqual({
+        id: firstCommentId,
+        username: 'dicoding',
+        date: firstComment.date,
+        content: 'Un Comentario',
+        replies: [],
+        likeCount: 2,
+      });
+      expect(secondComment).toStrictEqual({
+        id: secondCommentId,
+        username: 'john',
+        date: secondComment.date,
+        content: 'Un Comentario',
+        replies: [],
+        likeCount: 1,
+      });
+      expect(deletedComment).toStrictEqual({
+        id: thirdComentId,
+        username: 'john',
+        date: deletedComment.date,
+        content: '**komentar telah dihapus**',
+        replies: [],
+        likeCount: 1,
       });
     });
 

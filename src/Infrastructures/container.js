@@ -14,11 +14,13 @@ const AuthenticationRepository = require('../Domains/authentications/Authenticat
 const ThreadRepository = require('../Domains/threads/ThreadRepository');
 const CommentRepository = require('../Domains/comments/CommentRepository');
 const ReplyRepository = require('../Domains/replies/ReplyRepository');
+const CommentLikeRepository = require('../Domains/comment_likes/CommentLikeRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
 const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
 const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
+const CommentLikeRepositoryPostgres = require('./repository/CommentLikeRepositoryPostgres');
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -36,6 +38,7 @@ const AddCommentUseCase = require('../Applications/use_case/comments/AddCommentU
 const DeleteCommentUseCase = require('../Applications/use_case/comments/DeleteCommentUseCase');
 const AddReplyUseCase = require('../Applications/use_case/replies/AddReplyUseCase');
 const DeleteReplyUseCase = require('../Applications/use_case/replies/DeleteReplyUseCase');
+const CommentLikeUseCase = require('../Applications/use_case/comment_likes/CommentLikeUseCase');
 
 // creating container
 const container = createContainer();
@@ -98,6 +101,20 @@ container.register([
   {
     key: ReplyRepository.name,
     Class: ReplyRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: CommentLikeRepository.name,
+    Class: CommentLikeRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -251,6 +268,10 @@ container.register([
           name: 'replyRepository',
           internal: ReplyRepository.name,
         },
+        {
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
+        },
       ],
     },
   },
@@ -326,6 +347,27 @@ container.register([
         {
           name: 'replyRepository',
           internal: ReplyRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: CommentLikeUseCase.name,
+    Class: CommentLikeUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
+        },
+        {
+          name: 'commentRepository',
+          internal: CommentRepository.name,
+        },
+        {
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
         },
       ],
     },
